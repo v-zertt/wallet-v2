@@ -1,0 +1,1265 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galaxy Wallet | Банка</title>
+    <!-- Підключення Tailwind CSS через CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Підключення Font Awesome 6.5 через CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Підключення шрифту Inter з Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Підключення бібліотеки для конфеті -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <style>
+        /* Стилі для шрифту Inter */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Основні стилі для фону та центрування */
+        body {
+            background-color: #1a202c; /* Темний фон */
+            color: #e2e8f0; /* Світлий текст */
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column; /* Розташування елементів по вертикалі */
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+            padding-bottom: 80px; /* Забезпечуємо відступ знизу для нижньої навігаційної панелі */
+        }
+
+        .header-bar {
+            width: 100%;
+            max-width: 400px; /* Обмеження ширини для мобільних пристроїв */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Стилі для нижньої навігаційної панелі (док-панелі) - скопійовано з profil.html */
+        .bottom-nav-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            max-width: 400px; /* Обмеження ширини, як і для основного контенту */
+            background-color: #2d3748; /* Темний фон */
+            display: flex;
+            justify-content: space-around; /* Змінено на space-around для рівномірного розподілу */
+            align-items: center;
+            height: 70px; /* Висота панелі */
+            border-top-left-radius: 1rem; /* Закруглені кути зверху */
+            border-top-right-radius: 1rem;
+            box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.2);
+            z-index: 999; /* Перекриває інший контент */
+            margin: 0 auto; /* Центрування на більших екранах */
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .bottom-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem;
+            color: #a0aec0; /* Колір тексту та іконок за замовчуванням */
+            text-decoration: none;
+            font-size: 0.8rem;
+            font-weight: bold;
+            transition: color 0.2s;
+            flex: 1; /* Рівномірно розподіляє простір між елементами */
+        }
+
+        .bottom-nav-item:hover,
+        .bottom-nav-item.active {
+            color: #6366f1; /* Колір при наведенні або для активного елемента */
+        }
+
+        .bottom-nav-item i {
+            font-size: 1.5rem;
+            margin-bottom: 0.2rem;
+        }
+
+        /* Стилі для бургер-меню - скопійовано з profil.html */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -100%; /* Приховано за межами екрану (повністю ліворуч) */
+            width: 100%; /* Повна ширина */
+            height: 100%;
+            background-color: #1f2937; /* Темний фон сайдбару */
+            z-index: 1500;
+            transition: left 0.3s ease-in-out;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.5);
+            padding: 20px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            max-width: 400px; /* Обмеження ширини для більших екранів, як основний вміст */
+            margin: 0 auto; /* Центрування на більших екранах */
+        }
+
+        .sidebar.active {
+            left: 0; /* Показано на екрані */
+        }
+
+        /* Оверлей для затемнення фону при відкритому меню */
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7); /* Напівпрозорий темний фон */
+            z-index: 1400; /* Менше, ніж сайдбар, але більше, ніж основний контент */
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .sidebar-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-close-button {
+            background: none;
+            border: none;
+            color: #e2e8f0;
+            font-size: 1.8rem;
+            cursor: pointer;
+        }
+
+        .sidebar-user-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .sidebar-user-avatar {
+            width: 50px;
+            height: 50px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 10px;
+            font-weight: bold;
+            font-size: 1.5rem;
+            overflow: hidden;
+        }
+        .sidebar-user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .sidebar-user-avatar-initials {
+             font-size: 1.5rem;
+             color: #cbd5e0;
+             text-transform: uppercase;
+        }
+
+        .sidebar-user-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-username {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #e2e8f0;
+        }
+
+        .sidebar-vip-status {
+            font-size: 0.8rem;
+            color: #a0aec0;
+        }
+
+        .sidebar-nav-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            flex-grow: 1; /* Дозволяє списку займати доступний простір */
+        }
+
+        .sidebar-nav-item {
+            margin-bottom: 10px;
+        }
+
+        .sidebar-nav-link {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            border-radius: 0.5rem;
+            color: #a0aec0;
+            text-decoration: none;
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        .sidebar-nav-link:hover,
+        .sidebar-nav-link.active {
+            background-color: #374151; /* Фон при наведенні/активний */
+            color: #e2e8f0;
+        }
+
+        .sidebar-nav-link i {
+            margin-right: 15px;
+            font-size: 1.2rem;
+        }
+
+        .sidebar-logout {
+            margin-top: auto; /* Притискає кнопку виходу донизу */
+        }
+
+        .sidebar-logout button {
+            background-color: #dc2626; /* Червоний для кнопки виходу */
+            color: white;
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 0.5rem;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .sidebar-logout button:hover {
+            background-color: #b91c1c;
+        }
+
+        /* Стилі для нового модального вікна сповіщень - скопійовано з profil.html */
+        .alert-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000; /* Вищий z-index, ніж для модального вікна транзакцій */
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .alert-modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .alert-modal-content {
+            background-color: #2d3748;
+            border-radius: 1rem;
+            padding: 2rem;
+            width: 90%;
+            max-width: 300px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+            text-align: center;
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+        }
+
+        .alert-modal-overlay.active .alert-modal-content {
+            transform: translateY(0);
+        }
+
+        .alert-modal-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .alert-modal-icon.success {
+            color: #48bb78; /* Зелений для успіху */
+        }
+
+        .alert-modal-icon.error {
+            color: #f56565; /* Червоний для помилки */
+        }
+
+        .alert-modal-message {
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+            color: #e2e8f0;
+        }
+
+        .alert-modal-button {
+            background-color: #6366f1;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            width: 100%;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+
+        .alert-modal-button:hover {
+            background-color: #4f46e5;
+        }
+
+        /* Стилі для космічного ефекту курсора - скопійовано з profil.html */
+        .cursor-particle-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none; /* Важливо, щоб частинки не блокували взаємодію з елементами */
+            overflow: hidden;
+            z-index: 9998; /* Забезпечити, щоб були під "зірочками" реєстрації, але над іншим контентом */
+        }
+
+        .cursor-particle {
+            position: absolute;
+            background-color: #fff; /* Колір частинок */
+            border-radius: 50%;
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(0); /* Початковий стан: по центру, нульовий розмір */
+            animation: fadeOutAndShrink 1s forwards; /* Анімація зникнення та зменшення */
+            box-shadow: 0 0 5px 2px rgba(255, 255, 255, 0.7); /* Ефект світіння */
+        }
+
+        @keyframes fadeOutAndShrink {
+            0% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0);
+            }
+        }
+
+        /* Стилі для секції "Банки" */
+        .banka-section {
+            width: 100%;
+            max-width: 400px;
+            margin-bottom: 1.5rem;
+        }
+
+        .banka-card {
+            background-color: #2d3748;
+            border-radius: 1rem;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .banka-card::before {
+            content: '';
+            position: absolute;
+            top: -20px;
+            right: -20px;
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 50%;
+            transform: rotate(45deg);
+        }
+
+        .banka-progress-bar {
+            width: 100%;
+            background-color: #4a5568;
+            border-radius: 9999px;
+            height: 10px;
+            margin-top: 0.5rem;
+            overflow: hidden;
+        }
+
+        .banka-progress-fill {
+            height: 100%;
+            background-color: #48bb78; /* Зелений колір прогресу */
+            border-radius: 9999px;
+            transition: width 0.5s ease-in-out;
+        }
+
+        .add-banka-button {
+            background-color: #6366f1;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            width: 100%;
+            font-weight: bold;
+            transition: background-color 0.2s;
+            margin-top: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .add-banka-button:hover {
+            background-color: #4f46e5;
+        }
+
+        /* Модальне вікно для створення банки */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background-color: #2d3748;
+            border-radius: 1rem;
+            padding: 2rem;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+            text-align: center; /* Центрування тексту в модальних вікнах */
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            color: #e2e8f0;
+        }
+
+        .modal-input-group {
+            background-color: #4a5568;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .modal-input-group input {
+            background: none;
+            border: none;
+            outline: none;
+            color: #e2e8f0;
+            flex-grow: 1;
+            padding-left: 0.75rem;
+        }
+
+        .modal-input-group input::placeholder {
+            color: #a0aec0;
+        }
+
+        .modal-input-group i {
+            color: #a0aec0;
+        }
+
+        .modal-button {
+            background-color: #48bb78;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            width: 100%;
+            font-weight: bold;
+            transition: background-color 0.2s;
+            margin-bottom: 0.75rem;
+        }
+        .modal-button:hover {
+            opacity: 0.9;
+        }
+
+        .cancel-modal-button {
+            background-color: #4a5568;
+            color: #e2e8f0;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            width: 100%;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+        .cancel-modal-button:hover {
+            opacity: 0.9;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .no-bankas-message {
+            text-align: center;
+            color: #a0aec0;
+            padding: 2rem;
+            font-size: 1.1rem;
+            border: 1px dashed #4a5568;
+            border-radius: 0.75rem;
+            margin-top: 1.5rem;
+        }
+
+        /* Стилі для модального вікна поповнення банки */
+        .deposit-modal-content {
+            background-color: #2d3748;
+            border-radius: 1rem;
+            padding: 2rem;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+        }
+        .deposit-modal-overlay.active .deposit-modal-content {
+            transform: translateY(0);
+        }
+        .deposit-modal-button {
+            background-color: #6366f1;
+        }
+        .deposit-modal-button:hover {
+            background-color: #4f46e5;
+        }
+
+        .banka-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 1rem;
+        }
+
+        .banka-action-button {
+            flex: 1;
+            padding: 0.5rem 1rem;
+            border-radius: 0.5rem;
+            font-weight: bold;
+            transition: background-color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem; /* Зменшено розмір шрифту для кнопок */
+            min-width: 80px; /* Додано мінімальну ширину для кнопок */
+        }
+
+        .banka-action-button.deposit {
+            background-color: #48bb78; /* Зелений */
+            color: white;
+        }
+        .banka-action-button.deposit:hover {
+            background-color: #38a169;
+        }
+
+        .banka-action-button.withdraw {
+            background-color: #f56565; /* Червоний */
+            color: white;
+        }
+        .banka-action-button.withdraw:hover {
+            background-color: #e53e3e;
+        }
+        .banka-action-button.delete {
+            background-color: #a0aec0; /* Сірий */
+            color: #2d3748;
+        }
+        .banka-action-button.delete:hover {
+            background-color: #718096;
+        }
+
+
+    </style>
+</head>
+<body>
+    <!-- Верхня панель з іконкою меню -->
+    <header class="header-bar">
+        <button id="menuButton" aria-label="Відкрити меню" class="text-2xl text-gray-300">
+            <i class="fas fa-bars"></i>
+        </button>
+        <h1 class="text-2xl font-bold text-white">Мої Банки</h1>
+        <div></div> <!-- Для вирівнювання -->
+    </header>
+
+    <!-- Бічна навігаційна панель (Бургер-меню) - скопійовано з profil.html -->
+    <aside id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-user-info">
+                <div class="sidebar-user-avatar" id="sidebarUserAvatar"></div>
+                <div class="sidebar-user-details">
+                    <span class="sidebar-username" id="sidebarUsername">User Name</span>
+                    <span class="sidebar-vip-status">VIP 0 - Validity Period: Permanent</span>
+                </div>
+            </div>
+            <button id="closeSidebarButton" class="sidebar-close-button" aria-label="Закрити меню">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <nav>
+            <ul class="sidebar-nav-list">
+                <li class="sidebar-nav-item">
+                    <a href="profil.html" class="sidebar-nav-link">
+                        <i class="fas fa-home"></i> Home
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="login.html" class="sidebar-nav-link">
+                        <i class="fas fa-user"></i> Account
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="#" class="sidebar-nav-link">
+                        <i class="fas fa-wallet"></i> Wallet address
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="#" class="sidebar-nav-link">
+                        <i class="fas fa-book"></i> Direction for use
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="#" class="sidebar-nav-link">
+                        <i class="fas fa-question-circle"></i> FAQ
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="#" class="sidebar-nav-link">
+                        <i class="fas fa-comment-dots"></i> Feedback
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        <div class="sidebar-logout">
+            <button id="logoutButton">
+                <i class="fas fa-sign-out-alt mr-2"></i> Log out
+            </button>
+        </div>
+    </aside>
+
+    <!-- Оверлей для бургер-меню - скопійовано з profil.html -->
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
+
+    <!-- Секція "Мої Банки" -->
+    <section class="banka-section">
+        <div id="bankasList" class="grid gap-4">
+            <!-- Тут будуть відображатися банки -->
+        </div>
+
+        <div id="noBankasMessage" class="no-bankas-message hidden">
+            У вас ще немає жодної банки. Створіть першу!
+        </div>
+
+        <button id="addBankaButton" class="add-banka-button">
+            <i class="fas fa-plus mr-2"></i> Створити нову банку
+        </button>
+    </section>
+
+    <!-- Модальне вікно "Створити банку" -->
+    <div id="createBankaModal" class="modal-overlay">
+        <div class="modal-content">
+            <h3 class="modal-header">Створити нову банку</h3>
+            <form id="createBankaForm">
+                <div class="modal-input-group">
+                    <input type="text" id="bankaName" placeholder="Назва банки" required>
+                </div>
+                <div class="modal-input-group">
+                    <input type="number" id="bankaTargetAmount" placeholder="Цільова сума (USDT)" step="0.01" required>
+                </div>
+                <button type="submit" class="modal-button">СТВОРИТИ</button>
+                <button type="button" class="cancel-modal-button" id="cancelCreateBankaModalButton">СКАСУВАТИ</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Модальне вікно "Поповнити банку" -->
+    <div id="depositModal" class="modal-overlay">
+        <div class="deposit-modal-content">
+            <h3 class="modal-header">Поповнити банку</h3>
+            <form id="depositForm">
+                <input type="hidden" id="depositBankaId">
+                <div class="modal-input-group">
+                    <input type="number" id="depositAmount" placeholder="Сума поповнення (USDT)" step="0.01" required>
+                </div>
+                <button type="submit" class="modal-button deposit-modal-button">ПОПОВНИТИ</button>
+                <button type="button" class="cancel-modal-button" id="cancelDepositModalButton">СКАСУВАТИ</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Модальне вікно "Зняти з банки" -->
+    <div id="withdrawModal" class="modal-overlay">
+        <div class="deposit-modal-content">
+            <h3 class="modal-header">Зняти з банки</h3>
+            <form id="withdrawForm">
+                <input type="hidden" id="withdrawBankaId">
+                <div class="modal-input-group">
+                    <input type="number" id="withdrawAmount" placeholder="Сума зняття (USDT)" step="0.01" required>
+                </div>
+                <button type="submit" class="modal-button deposit-modal-button bg-red-500 hover:bg-red-600">ЗНЯТИ</button>
+                <button type="button" class="cancel-modal-button" id="cancelWithdrawModalButton">СКАСУВАТИ</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Нове модальне вікно для сповіщень (замість alert) - скопійовано з profil.html -->
+    <div id="alertModal" class="alert-modal-overlay">
+        <div class="alert-modal-content">
+            <div id="alertModalIcon" class="alert-modal-icon"></div>
+            <div id="alertModalMessage" class="alert-modal-message"></div>
+            <button id="alertModalButton" class="alert-modal-button">ОК</button>
+        </div>
+    </div>
+
+    <!-- Нове модальне вікно для святкування досягнення мети -->
+    <div id="celebrationModal" class="modal-overlay" style="z-index: 2001;">
+        <div class="modal-content">
+            <h3 class="modal-header" id="celebrationMessage"></h3>
+            <button id="closeCelebrationModalButton" class="modal-button">Чудово!</button>
+        </div>
+    </div>
+
+    <!-- Контейнер для частинок ефекту курсора - скопійовано з profil.html -->
+    <div id="cursorParticleContainer" class="cursor-particle-container"></div>
+
+    <!-- Нижня навігаційна панель (док-панель) -->
+    <nav class="bottom-nav-bar">
+        <a href="profil.html" class="bottom-nav-item">
+            <i class="fas fa-home"></i>
+            <span>Головна</span>
+        </a>
+        <a href="analytics.html" class="bottom-nav-item">
+            <i class="fas fa-chart-line"></i>
+            <span>Аналітика</span>
+        </a>
+        <a href="curse.html" class="bottom-nav-item">
+            <i class="fas fa-coins"></i>
+            <span>Курси валют</span>
+        </a>
+        <a href="banka.html" class="bottom-nav-item active">
+            <i class="fas fa-jar"></i>
+            <span>Банка</span>
+        </a>
+    </nav>
+
+
+    <script>
+        // Елементи DOM
+        const menuButton = document.getElementById('menuButton');
+        const sidebar = document.getElementById('sidebar');
+        const closeSidebarButton = document.getElementById('closeSidebarButton');
+        const sidebarUserAvatar = document.getElementById('sidebarUserAvatar');
+        const sidebarUsername = document.getElementById('sidebarUsername');
+        const logoutButton = document.getElementById('logoutButton');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        const cursorParticleContainer = document.getElementById('cursorParticleContainer');
+
+        const bankasList = document.getElementById('bankasList');
+        const noBankasMessage = document.getElementById('noBankasMessage');
+        const addBankaButton = document.getElementById('addBankaButton');
+        const createBankaModal = document.getElementById('createBankaModal');
+        const cancelCreateBankaModalButton = document.getElementById('cancelCreateBankaModalButton');
+        const createBankaForm = document.getElementById('createBankaForm');
+        const bankaNameInput = document.getElementById('bankaName');
+        const bankaTargetAmountInput = document.getElementById('bankaTargetAmount');
+
+        const depositModal = document.getElementById('depositModal');
+        const cancelDepositModalButton = document.getElementById('cancelDepositModalButton');
+        const depositForm = document.getElementById('depositForm');
+        const depositBankaIdInput = document.getElementById('depositBankaId');
+        const depositAmountInput = document.getElementById('depositAmount');
+
+        const withdrawModal = document.getElementById('withdrawModal');
+        const cancelWithdrawModalButton = document.getElementById('cancelWithdrawModalButton');
+        const withdrawForm = document.getElementById('withdrawForm');
+        const withdrawBankaIdInput = document.getElementById('withdrawBankaId');
+        const withdrawAmountInput = document.getElementById('withdrawAmount');
+
+
+        // Елементи нового модального вікна сповіщень
+        const alertModal = document.getElementById('alertModal');
+        const alertModalIcon = document.getElementById('alertModalIcon');
+        const alertModalMessage = document.getElementById('alertModalMessage');
+        const alertModalButton = document.getElementById('alertModalButton');
+
+        // Елементи нового модального вікна святкування
+        const celebrationModal = document.getElementById('celebrationModal');
+        const celebrationMessage = document.getElementById('celebrationMessage');
+        const closeCelebrationModalButton = document.getElementById('closeCelebrationModalButton');
+
+
+        let currentLoggedInUserAccount = null; // Зберігаємо логін поточного користувача
+
+        /**
+         * Функція для відображення кастомного модального вікна сповіщень.
+         * @param {string} message Повідомлення для відображення.
+         * @param {string} type Тип сповіщення ('success' або 'error' або 'info').
+         * @param {function} [okCallback] Функція, яка буде викликана при натисканні кнопки "ОК".
+         */
+        function showAlert(message, type, okCallback = null) {
+            alertModalMessage.textContent = message;
+            alertModalIcon.className = 'alert-modal-icon'; // Очищаємо попередні класи
+
+            if (type === 'success') {
+                alertModalIcon.classList.add('fas', 'fa-check-circle', 'success');
+            } else if (type === 'error') {
+                alertModalIcon.classList.add('fas', 'fa-times-circle', 'error');
+            } else if (type === 'info') { // Added info type
+                alertModalIcon.classList.add('fas', 'fa-info-circle');
+            } else {
+                alertModalIcon.classList.add('fas', 'fa-info-circle'); // За замовчуванням
+            }
+
+            // Set the OK button's action
+            alertModalButton.onclick = () => {
+                alertModal.classList.remove('active'); // Always close the modal
+                if (okCallback && typeof okCallback === 'function') {
+                    okCallback(); // Execute the provided callback
+                }
+                // Reset to default behavior after execution (if it was a one-time callback)
+                alertModalButton.onclick = () => {
+                    alertModal.classList.remove('active');
+                };
+            };
+
+            alertModal.classList.add('active');
+        }
+
+        // Закрити модальне вікно сповіщень (для кліка по оверлею)
+        alertModal.addEventListener('click', (event) => {
+            if (event.target === alertModal) {
+                alertModal.classList.remove('active');
+                // Reset the button's behavior if closed by overlay
+                alertModalButton.onclick = () => {
+                    alertModal.classList.remove('active');
+                };
+            }
+        });
+
+        /**
+         * Функція для відображення модального вікна святкування з конфеті.
+         * @param {string} bankaName Назва банки, для якої досягнуто мети.
+         */
+        function showCelebrationModal(bankaName) {
+            celebrationMessage.textContent = `Вітаємо! Ви досягли мети для "${bankaName}"!`;
+            celebrationModal.classList.add('active');
+
+            // Запускаємо анімацію конфеті з високим z-index
+            confetti({
+                particleCount: 100,
+                spread: 70,
+                origin: { y: 0.6 },
+                zIndex: 9999 // Встановлюємо високий z-index для конфеті
+            });
+        }
+
+        // Закрити модальне вікно святкування
+        closeCelebrationModalButton.addEventListener('click', () => {
+            celebrationModal.classList.remove('active');
+        });
+
+        celebrationModal.addEventListener('click', (event) => {
+            if (event.target === celebrationModal) {
+                celebrationModal.classList.remove('active');
+            }
+        });
+
+
+        /**
+         * Завантажує та відображає дані користувача з localStorage.
+         */
+        function loadUserData() {
+            const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+            const currentUser = registeredUsers.find(user =>
+                user.email === currentLoggedInUserAccount || user.mobile === currentLoggedInUserAccount
+            );
+
+            if (currentUser) {
+                sidebarUsername.textContent = currentUser.username; // Оновлення ім'я користувача в сайдбарі
+
+                if (currentUser.avatar) {
+                    sidebarUserAvatar.innerHTML = `<img src="${currentUser.avatar}" alt="Аватар користувача">`; // Аватар в сайдбарі
+                } else {
+                    sidebarUserAvatar.innerHTML = `<span class="sidebar-user-avatar-initials">${currentUser.username.charAt(0).toUpperCase()}</span>`; // Ініціали в сайдбарі
+                }
+            } else {
+                console.error('Помилка: Не знайдено дані користувача для поточного логіну. Перенаправлення на сторінку входу.');
+                window.location.href = 'login.html'; // Повернути до сторінки входу
+            }
+        }
+
+        /**
+         * Рендерить список банок на сторінці для поточного користувача.
+         */
+        function renderBankas() {
+            bankasList.innerHTML = ''; // Очистити поточний список
+            const allUserBankas = JSON.parse(localStorage.getItem('allUserBankas') || '{}');
+            const currentUserBankas = allUserBankas[currentLoggedInUserAccount] || [];
+
+            if (currentUserBankas.length === 0) {
+                noBankasMessage.classList.remove('hidden');
+                bankasList.classList.add('hidden');
+            } else {
+                noBankasMessage.classList.add('hidden');
+                bankasList.classList.remove('hidden');
+                currentUserBankas.forEach(banka => {
+                    const progress = (banka.currentAmount / banka.targetAmount) * 100;
+                    const bankaCard = document.createElement('div');
+                    bankaCard.classList.add('banka-card');
+                    bankaCard.innerHTML = `
+                        <h3 class="text-lg font-bold">${banka.name}</h3>
+                        <p class="text-sm text-gray-400">Ціль: ${banka.targetAmount.toFixed(2)} USDT</p>
+                        <p class="text-xl font-bold mt-2">${banka.currentAmount.toFixed(2)} USDT</p>
+                        <div class="banka-progress-bar">
+                            <div class="banka-progress-fill" style="width: ${Math.min(100, progress)}%;"></div>
+                        </div>
+                        <p class="text-xs text-gray-400 mt-1">${progress.toFixed(2)}% зібрано</p>
+                        <div class="banka-actions">
+                            <button class="banka-action-button deposit" data-banka-id="${banka.id}">
+                                <i class="fas fa-plus mr-1"></i> Поповнити
+                            </button>
+                            <button class="banka-action-button withdraw" data-banka-id="${banka.id}">
+                                <i class="fas fa-minus mr-1"></i> Зняти
+                            </button>
+                            <button class="banka-action-button delete" data-banka-id="${banka.id}">
+                                <i class="fas fa-trash-alt mr-1"></i> Видалити
+                            </button>
+                        </div>
+                    `;
+                    bankasList.appendChild(bankaCard);
+                });
+            }
+        }
+
+        /**
+         * Оновлює доступний баланс користувача на основі транзакцій.
+         */
+        function updateAvailableBalance() {
+            const allUserTransactions = JSON.parse(localStorage.getItem('allUserTransactions') || '{}');
+            const currentUserTransactions = allUserTransactions[currentLoggedInUserAccount] || [];
+
+            let currentAvailableBalance = 0;
+            currentUserTransactions.forEach(transaction => {
+                if (transaction.type === 'Дохід') {
+                    currentAvailableBalance += transaction.amount;
+                } else if (transaction.type === 'Витрата') {
+                    currentAvailableBalance -= transaction.amount;
+                }
+            });
+
+            // Зберігаємо оновлений доступний баланс
+            let allUserBalances = JSON.parse(localStorage.getItem('allUserBalances') || '{}');
+            if (!allUserBalances[currentLoggedInUserAccount]) {
+                allUserBalances[currentLoggedInUserAccount] = {};
+            }
+            allUserBalances[currentLoggedInUserAccount].availableBalance = currentAvailableBalance.toFixed(2);
+            localStorage.setItem('allUserBalances', JSON.stringify(allUserBalances));
+            return parseFloat(currentAvailableBalance.toFixed(2));
+        }
+
+        // Ініціалізація при завантаженні сторінки
+        document.addEventListener('DOMContentLoaded', () => {
+            currentLoggedInUserAccount = localStorage.getItem('currentLoggedInUserAccount');
+
+            if (!currentLoggedInUserAccount) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            loadUserData();
+            renderBankas();
+        });
+
+        // Логіка відкриття/закриття бургер-меню
+        menuButton.addEventListener('click', () => {
+            sidebar.classList.add('active');
+            sidebarOverlay.classList.add('active');
+        });
+
+        closeSidebarButton.addEventListener('click', () => {
+            sidebar.classList.remove('active');
+            sidebarOverlay.classList.remove('active');
+        });
+
+        sidebarOverlay.addEventListener('click', () => {
+            sidebar.classList.remove('active');
+            sidebarOverlay.classList.remove('active');
+        });
+
+        // Обробник для кнопки "Log out"
+        logoutButton.addEventListener('click', () => {
+            localStorage.removeItem('currentLoggedInUserAccount');
+            showAlert('Ви успішно вийшли з акаунта!', 'success');
+            setTimeout(() => {
+                window.location.href = 'login.html';
+            }, 1500);
+        });
+
+        // ** КОД ДЛЯ КОСМІЧНОГО ЕФЕКТУ КУРСОРУ **
+        document.addEventListener('mousemove', function(e) {
+            createCursorParticle(e.clientX, e.clientY);
+        });
+
+        function createCursorParticle(x, y) {
+            const particle = document.createElement('div');
+            particle.classList.add('cursor-particle');
+            cursorParticleContainer.appendChild(particle);
+
+            const size = Math.random() * 10 + 5;
+            particle.style.width = `${size}px`;
+            particle.style.height = `${size}px`;
+
+            particle.style.left = `${x}px`;
+            particle.style.top = `${y}px`;
+
+            const colors = ['#a0a0ff', '#c0c0ff', '#e0e0ff', '#ffffff'];
+            particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            particle.style.boxShadow = `0 0 ${size / 2}px ${size / 4}px ${particle.style.backgroundColor}`;
+
+            particle.addEventListener('animationend', () => {
+                particle.remove();
+            });
+        }
+        // ** КІНЕЦЬ КОДУ КОСМІЧНОГО ЕФЕКТУ КУРСОРУ **
+
+        // Логіка створення банки
+        addBankaButton.addEventListener('click', () => {
+            createBankaModal.classList.add('active');
+            bankaNameInput.value = '';
+            bankaTargetAmountInput.value = '';
+        });
+
+        cancelCreateBankaModalButton.addEventListener('click', () => {
+            createBankaModal.classList.remove('active');
+        });
+
+        createBankaModal.addEventListener('click', (event) => {
+            if (event.target === createBankaModal) {
+                createBankaModal.classList.remove('active');
+            }
+        });
+
+        createBankaForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+
+            const name = bankaNameInput.value.trim();
+            const targetAmount = parseFloat(bankaTargetAmountInput.value);
+
+            if (!name || isNaN(targetAmount) || targetAmount <= 0) {
+                showAlert('Будь ласка, введіть коректні дані для назви та цільової суми.', 'error');
+                return;
+            }
+
+            let allUserBankas = JSON.parse(localStorage.getItem('allUserBankas') || '{}');
+            if (!allUserBankas[currentLoggedInUserAccount]) {
+                allUserBankas[currentLoggedInUserAccount] = [];
+            }
+
+            const newBanka = {
+                id: Date.now(), // Унікальний ID для банки
+                name: name,
+                targetAmount: targetAmount,
+                currentAmount: 0,
+                createdAt: new Date().toISOString()
+            };
+
+            allUserBankas[currentLoggedInUserAccount].push(newBanka);
+            localStorage.setItem('allUserBankas', JSON.stringify(allUserBankas));
+
+            createBankaModal.classList.remove('active');
+            showAlert('Банку успішно створено!', 'success');
+            renderBankas();
+        });
+
+        // Логіка поповнення та зняття з банки
+        bankasList.addEventListener('click', (event) => {
+            const bankaId = event.target.dataset.bankaId;
+            if (!bankaId) return;
+
+            if (event.target.classList.contains('deposit')) {
+                depositBankaIdInput.value = bankaId;
+                depositAmountInput.value = '';
+                depositModal.classList.add('active');
+            } else if (event.target.classList.contains('withdraw')) {
+                withdrawBankaIdInput.value = bankaId;
+                withdrawAmountInput.value = '';
+                withdrawModal.classList.add('active');
+            } else if (event.target.classList.contains('delete')) {
+                // Використовуємо кастомне модальне вікно для підтвердження
+                showAlert(
+                    'Ви впевнені, що хочете видалити цю банку?',
+                    'info',
+                    () => {
+                        deleteBanka(parseInt(bankaId));
+                    }
+                );
+            }
+        });
+
+        cancelDepositModalButton.addEventListener('click', () => {
+            depositModal.classList.remove('active');
+        });
+
+        depositModal.addEventListener('click', (event) => {
+            if (event.target === depositModal) {
+                depositModal.classList.remove('active');
+            }
+        });
+
+        depositForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const bankaId = parseInt(depositBankaIdInput.value);
+            const amount = parseFloat(depositAmountInput.value);
+
+            if (isNaN(amount) || amount <= 0) {
+                showAlert('Будь ласка, введіть дійсну суму для поповнення.', 'error');
+                return;
+            }
+
+            let availableBalance = updateAvailableBalance(); // Отримуємо актуальний баланс
+            if (availableBalance < amount) {
+                showAlert('Недостатньо коштів на балансі для поповнення.', 'error');
+                return;
+            }
+
+            let allUserBankas = JSON.parse(localStorage.getItem('allUserBankas') || '{}');
+            let currentUserBankas = allUserBankas[currentLoggedInUserAccount] || [];
+            const bankaIndex = currentUserBankas.findIndex(b => b.id === bankaId);
+
+            if (bankaIndex !== -1) {
+                // Зберігаємо поточний стан банки до оновлення
+                const bankaBeforeDeposit = { ...currentUserBankas[bankaIndex] };
+
+                currentUserBankas[bankaIndex].currentAmount += amount;
+                allUserBankas[currentLoggedInUserAccount] = currentUserBankas;
+                localStorage.setItem('allUserBankas', JSON.stringify(allUserBankas));
+
+                // Створюємо транзакцію для відображення в історії (як витрату з основного балансу)
+                const newTransaction = {
+                    type: 'Витрата',
+                    amount: amount,
+                    date: new Date().toLocaleDateString('uk-UA'),
+                    category: 'Поповнення банки',
+                    comment: `Поповнення банки "${currentUserBankas[bankaIndex].name}"`,
+                    timestamp: new Date().toISOString()
+                };
+                let allUserTransactions = JSON.parse(localStorage.getItem('allUserTransactions') || '{}');
+                if (!allUserTransactions[currentLoggedInUserAccount]) {
+                    allUserTransactions[currentLoggedInUserAccount] = [];
+                }
+                allUserTransactions[currentLoggedInUserAccount].push(newTransaction);
+                localStorage.setItem('allUserTransactions', JSON.stringify(allUserTransactions));
+
+                updateAvailableBalance(); // Оновлюємо баланс після транзакції
+                depositModal.classList.remove('active');
+                showAlert('Банку успішно поповнено!', 'success');
+                renderBankas();
+
+                // Перевіряємо, чи досягнуто мети після поповнення
+                if (bankaBeforeDeposit.currentAmount < bankaBeforeDeposit.targetAmount &&
+                    currentUserBankas[bankaIndex].currentAmount >= currentUserBankas[bankaIndex].targetAmount) {
+                    showCelebrationModal(currentUserBankas[bankaIndex].name);
+                }
+
+            } else {
+                showAlert('Банку не знайдено.', 'error');
+            }
+        });
+
+        cancelWithdrawModalButton.addEventListener('click', () => {
+            withdrawModal.classList.remove('active');
+        });
+
+        withdrawModal.addEventListener('click', (event) => {
+            if (event.target === withdrawModal) {
+                withdrawModal.classList.remove('active');
+            }
+        });
+
+        withdrawForm.addEventListener('submit', (event) => {
+            event.preventDefault();
+            const bankaId = parseInt(withdrawBankaIdInput.value);
+            const amount = parseFloat(withdrawAmountInput.value);
+
+            if (isNaN(amount) || amount <= 0) {
+                showAlert('Будь ласка, введіть дійсну суму для зняття.', 'error');
+                return;
+            }
+
+            let allUserBankas = JSON.parse(localStorage.getItem('allUserBankas') || '{}');
+            let currentUserBankas = allUserBankas[currentLoggedInUserAccount] || [];
+            const bankaIndex = currentUserBankas.findIndex(b => b.id === bankaId);
+
+            if (bankaIndex !== -1) {
+                if (currentUserBankas[bankaIndex].currentAmount < amount) {
+                    showAlert('Недостатньо коштів у банці для зняття.', 'error');
+                    return;
+                }
+                currentUserBankas[bankaIndex].currentAmount -= amount;
+                allUserBankas[currentLoggedInUserAccount] = currentUserBankas;
+                localStorage.setItem('allUserBankas', JSON.stringify(allUserBankas));
+
+                // Створюємо транзакцію для відображення в історії (як дохід на основний баланс)
+                const newTransaction = {
+                    type: 'Дохід',
+                    amount: amount,
+                    date: new Date().toLocaleDateString('uk-UA'),
+                    category: 'Зняття з банки',
+                    comment: `Зняття з банки "${currentUserBankas[bankaIndex].name}"`,
+                    timestamp: new Date().toISOString()
+                };
+                let allUserTransactions = JSON.parse(localStorage.getItem('allUserTransactions') || '{}');
+                if (!allUserTransactions[currentLoggedInUserAccount]) {
+                    allUserTransactions[currentLoggedInUserAccount] = [];
+                }
+                allUserTransactions[currentLoggedInUserAccount].push(newTransaction);
+                localStorage.setItem('allUserTransactions', JSON.stringify(allUserTransactions));
+
+                updateAvailableBalance(); // Оновлюємо баланс після транзакції
+                withdrawModal.classList.remove('active');
+                showAlert('Кошти успішно знято з банки!', 'success');
+                renderBankas();
+            } else {
+                showAlert('Банку не знайдено.', 'error');
+            }
+        });
+
+        /**
+         * Видаляє банку за її ID.
+         * @param {number} bankaId ID банки для видалення.
+         */
+        function deleteBanka(bankaId) {
+            let allUserBankas = JSON.parse(localStorage.getItem('allUserBankas') || '{}');
+            let currentUserBankas = allUserBankas[currentLoggedInUserAccount] || [];
+            const initialLength = currentUserBankas.length;
+
+            currentUserBankas = currentUserBankas.filter(banka => banka.id !== bankaId);
+
+            if (currentUserBankas.length < initialLength) {
+                allUserBankas[currentLoggedInUserAccount] = currentUserBankas;
+                localStorage.setItem('allUserBankas', JSON.stringify(allUserBankas));
+                showAlert('Банку успішно видалено!', 'success');
+                renderBankas();
+            } else {
+                showAlert('Помилка при видаленні банки.', 'error');
+            }
+        }
+
+    </script>
+</body>
+</html>

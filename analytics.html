@@ -1,0 +1,761 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galaxy Wallet | Аналітика</title>
+    <!-- Підключення Tailwind CSS через CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Підключення Font Awesome 6.5 через CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Підключення шрифту Inter з Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Підключення Chart.js для діаграм -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        /* Стилі для шрифту Inter */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Основні стилі для фону та центрування */
+        body {
+            background-color: #1a202c; /* Темний фон */
+            color: #e2e8f0; /* Світлий текст */
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column; /* Розташування елементів по вертикалі */
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+            padding-bottom: 80px; /* Забезпечуємо відступ знизу для нижньої навігаційної панелі */
+        }
+
+        .header-bar {
+            width: 100%;
+            max-width: 400px; /* Ширина як у profil.html */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            margin-bottom: 1.5rem;
+        }
+
+        .card {
+            background: linear-gradient(135deg, #4c51bf, #667eea); /* Градієнтний фон для картки */
+            border-radius: 1rem;
+            padding: 1.5rem;
+            width: 100%;
+            max-width: 400px; /* Ширина як у profil.html */
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            margin-bottom: 1.5rem;
+            color: white; /* Білий текст для картки */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative; /* Для позиціонування VIP */
+            overflow: hidden; /* Щоб градієнт не виходив за межі */
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            left: -50px;
+            width: 200px;
+            height: 200px;
+            background: rgba(255, 255, 255, 0.05); /* Легкий світлий відблиск */
+            border-radius: 50%;
+            transform: rotate(45deg);
+        }
+
+        .chart-wrapper {
+            width: 100%;
+            max-width: 400px; /* Відповідає ширині карток */
+            margin-bottom: 1.5rem;
+        }
+
+        .chart-wrapper h2 {
+            text-align: center;
+            font-size: 1.25rem; /* text-xl */
+            font-weight: bold;
+            margin-bottom: 1rem; /* Відступ між заголовком та діаграмою */
+            color: #e2e8f0; /* Колір заголовка */
+        }
+
+        .chart-container {
+            background-color: #2d3748; /* Фон для контейнера діаграми */
+            border-radius: 1rem;
+            padding: 1.5rem;
+            width: 100%;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            height: 300px; /* Фіксована висота для контейнера діаграми */
+            display: flex; /* Додано для центрування canvas */
+            justify-content: center; /* Додано для центрування canvas */
+            align-items: center; /* Додано для центрування canvas */
+            position: relative; /* Для позиціонування canvas всередині */
+        }
+        .chart-container canvas {
+            max-width: 100%; /* Забезпечуємо, щоб canvas не виходив за межі контейнера */
+            max-height: 100%; /* Забезпечуємо, щоб canvas не виходив за межі контейнера */
+        }
+
+        /* Стилі для космічного ефекту курсора */
+        .cursor-particle-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none; /* Важливо, щоб частинки не блокували взаємодію з елементами */
+            overflow: hidden;
+            z-index: 9998; /* Забезпечити, щоб були під "зірочками" реєстрації, але над іншим контентом */
+        }
+
+        .cursor-particle {
+            position: absolute;
+            background-color: #fff; /* Колір частинок */
+            border-radius: 50%;
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(0); /* Початковий стан: по центру, нульовий розмір */
+            animation: fadeOutAndShrink 1s forwards; /* Анімація зникнення та зменшення */
+            box-shadow: 0 0 5px 2px rgba(255, 255, 255, 0.7); /* Ефект світіння */
+        }
+
+        @keyframes fadeOutAndShrink {
+            0% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0);
+            }
+        }
+
+        /* Стилі для нижньої навігаційної панелі (док-панелі) */
+        .bottom-nav-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            max-width: 400px; /* Ширина як у profil.html */
+            background-color: #2d3748; /* Темний фон */
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            height: 70px; /* Висота панелі */
+            border-top-left-radius: 1rem; /* Закруглені кути зверху */
+            border-top-right-radius: 1rem;
+            box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.2);
+            z-index: 999; /* Перекриває інший контент */
+            margin: 0 auto; /* Центрування на більших екранах */
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .bottom-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem;
+            color: #a0aec0; /* Колір тексту та іконок за замовчуванням */
+            text-decoration: none;
+            font-size: 0.8rem;
+            font-weight: bold;
+            transition: color 0.2s;
+            flex: 1; /* Рівномірно розподіляє простір між елементами */
+        }
+
+        .bottom-nav-item:hover,
+        .bottom-nav-item.active {
+            color: #6366f1; /* Колір при наведенні або для активного елемента */
+        }
+
+        .bottom-nav-item i {
+            font-size: 1.5rem;
+            margin-bottom: 0.2rem;
+        }
+
+        /* Стилі для бічного меню (Side Menu) */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -100%; /* Приховано за межами екрану (повністю ліворуч) */
+            width: 100%; /* Повна ширина */
+            height: 100%;
+            background-color: #1f2937; /* Темний фон сайдбару */
+            z-index: 1500;
+            transition: left 0.3s ease-in-out;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.5);
+            padding: 20px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            max-width: 400px; /* Обмеження ширини для більших екранів, як основний вміст */
+            margin: 0 auto; /* Центрування на більших екранах */
+        }
+
+        .sidebar.active {
+            left: 0; /* Показано на екрані */
+        }
+
+        /* Оверлей для затемнення фону при відкритому меню */
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7); /* Напівпрозорий темний фон */
+            z-index: 1400; /* Менше, ніж сайдбар, але більше, ніж основний контент */
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .sidebar-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-close-button {
+            background: none;
+            border: none;
+            color: #e2e8f0;
+            font-size: 1.8rem;
+            cursor: pointer;
+        }
+
+        .sidebar-user-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .sidebar-user-avatar {
+            width: 50px;
+            height: 50px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 10px;
+            font-weight: bold;
+            font-size: 1.5rem;
+            overflow: hidden;
+        }
+        .sidebar-user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .sidebar-user-avatar-initials {
+             font-size: 1.5rem;
+             color: #cbd5e0;
+             text-transform: uppercase;
+        }
+
+        .sidebar-user-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-username {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #e2e8f0;
+        }
+
+        .sidebar-vip-status {
+            font-size: 0.8rem;
+            color: #a0aec0;
+        }
+
+        .sidebar-nav-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            flex-grow: 1; /* Дозволяє списку займати доступний простір */
+        }
+
+        .sidebar-nav-item {
+            margin-bottom: 10px;
+        }
+
+        .sidebar-nav-link {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            border-radius: 0.5rem;
+            color: #a0aec0;
+            text-decoration: none;
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        .sidebar-nav-link:hover,
+        .sidebar-nav-link.active {
+            background-color: #374151; /* Фон при наведенні/активний */
+            color: #e2e8f0;
+        }
+
+        .sidebar-nav-link i {
+            margin-right: 15px;
+            font-size: 1.2rem;
+        }
+
+        .sidebar-logout {
+            margin-top: auto; /* Притискає кнопку виходу донизу */
+        }
+
+        .sidebar-logout button {
+            background-color: #dc2626; /* Червоний для кнопки виходу */
+            color: white;
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 0.5rem;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .sidebar-logout button:hover {
+            background-color: #b91c1c;
+        }
+
+        /* Стилі для загальної кількості грошей */
+        .total-assets {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .total-assets-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-bottom: 0.5rem;
+        }
+
+        .total-assets-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <!-- Верхня панель з іконкою меню -->
+    <header class="header-bar">
+        <button id="menuButton" aria-label="Відкрити меню" class="text-2xl text-gray-300">
+            <i class="fas fa-bars"></i>
+        </button>
+        <h1 class="text-xl font-bold text-gray-100">Аналітика</h1>
+        <div></div> <!-- Для вирівнювання по центру, якщо не потрібна інша іконка -->
+    </header>
+
+    <!-- Картка з загальною статистикою -->
+    <div class="card">
+        <h2 class="text-xl font-bold mb-4">Загальна статистика за місяць</h2>
+        <div class="flex justify-between items-center mb-2">
+            <div>
+                <div class="text-sm opacity-80">Всього доходів</div>
+                <div class="text-2xl font-bold text-green-300" id="totalIncome">0.00</div>
+            </div>
+            <div>
+                <div class="text-sm opacity-80">Всього витрат</div>
+                <div class="text-2xl font-bold text-red-300" id="totalExpense">0.00</div>
+            </div>
+        </div>
+        <!-- Загальна кількість грошей (як "Всього активів" у profil.html) -->
+        <div class="total-assets">
+            <div class="total-assets-label">Всього активів</div> <!-- Змінено текст -->
+            <div class="total-assets-value" id="totalAssetsValueDisplay">0.00</div>
+        </div>
+    </div>
+
+    <!-- Діаграма доходів -->
+    <div class="chart-wrapper">
+        <h2 class="text-xl font-bold text-center">Динаміка доходів за місяць</h2>
+        <div class="chart-container">
+            <canvas id="incomeChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Діаграма витрат -->
+    <div class="chart-wrapper">
+        <h2 class="text-xl font-bold text-center">Динаміка витрат за місяць</h2>
+        <div class="chart-container">
+            <canvas id="expenseChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Контейнер для частинок ефекту курсора -->
+    <div id="cursorParticleContainer" class="cursor-particle-container"></div>
+
+    <!-- Бічна навігаційна панель (Бургер-меню) -->
+    <aside id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-user-info">
+                <div class="sidebar-user-avatar" id="sidebarUserAvatar"></div>
+                <div class="sidebar-user-details">
+                    <span class="sidebar-username" id="sidebarUsername">User Name</span>
+                    <span class="sidebar-vip-status">VIP 0 - Validity Period: Permanent</span>
+                </div>
+            </div>
+            <button id="closeSidebarButton" class="sidebar-close-button" aria-label="Закрити меню">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <nav>
+            <ul class="sidebar-nav-list">
+                <li class="sidebar-nav-item">
+                    <a href="profil.html" class="sidebar-nav-link">
+                        <i class="fas fa-home"></i> Home
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="login.html" class="sidebar-nav-link">
+                        <i class="fas fa-user"></i> Account
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="#" class="sidebar-nav-link">
+                        <i class="fas fa-wallet"></i> Wallet address
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="#" class="sidebar-nav-link">
+                        <i class="fas fa-book"></i> Direction for use
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="#" class="sidebar-nav-link">
+                        <i class="fas fa-question-circle"></i> FAQ
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="#" class="sidebar-nav-link">
+                        <i class="fas fa-comment-dots"></i> Feedback
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        <div class="sidebar-logout">
+            <button id="logoutButton">
+                <i class="fas fa-sign-out-alt mr-2"></i> Log out
+            </button>
+        </div>
+    </aside>
+
+    <!-- Оверлей для бургер-меню -->
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
+
+    <!-- Нижня навігаційна панель (док-панель) -->
+    <nav class="bottom-nav-bar">
+        <a href="profil.html" class="bottom-nav-item">
+            <i class="fas fa-home"></i>
+            <span>Головна</span>
+        </a>
+        <a href="analytics.html" class="bottom-nav-item active">
+            <i class="fas fa-chart-line"></i>
+            <span>Аналітика</span>
+        </a>
+        <!-- Центральна кнопка "Додати" видалена згідно з запитом -->
+        <!-- <button class="bottom-nav-add-button" role="button" aria-label="Додати нову транзакцію" id="bottomNavAddButton">
+            <i class="fas fa-plus"></i>
+        </button> -->
+        <a href="curse.html" class="bottom-nav-item">
+            <i class="fas fa-coins"></i>
+            <span>Курси валют</span>
+        </a>
+        <a href="banka.html" class="bottom-nav-item">
+            <i class="fas fa-jar"></i>
+            <span>Банка</span>
+        </a>
+    </nav>
+
+    <script>
+        const menuButton = document.getElementById('menuButton'); // Бургер-меню кнопка
+        const sidebar = document.getElementById('sidebar');
+        const closeSidebarButton = document.getElementById('closeSidebarButton');
+        const sidebarOverlay = document.getElementById('sidebarOverlay');
+        const sidebarUserAvatar = document.getElementById('sidebarUserAvatar');
+        const sidebarUsername = document.getElementById('sidebarUsername');
+        const logoutButton = document.getElementById('logoutButton'); // Кнопка виходу в сайдбарі
+
+        const totalIncomeDisplay = document.getElementById('totalIncome');
+        const totalExpenseDisplay = document.getElementById('totalExpense');
+        const totalAssetsValueDisplay = document.getElementById('totalAssetsValueDisplay'); // Змінено ID
+
+        const cursorParticleContainer = document.getElementById('cursorParticleContainer');
+
+        let incomeChart;
+        let expenseChart;
+        let currentLoggedInUserAccount = null;
+
+        /**
+         * Функція для відображення кастомного модального вікна сповіщень.
+         * Ця функція є заглушкою, оскільки на цій сторінці не передбачено додавання транзакцій.
+         * @param {string} message Повідомлення для відображення.
+         * @param {string} type Тип сповіщення ('success' або 'error').
+         */
+        function showAlert(message, type) {
+            console.log(`Alert (${type}): ${message}`);
+        }
+
+        /**
+         * Завантажує транзакції поточного користувача з localStorage.
+         * @returns {Array} Масив транзакцій.
+         */
+        function loadTransactions() {
+            const allUserTransactions = JSON.parse(localStorage.getItem('allUserTransactions') || '{}');
+            return allUserTransactions[currentLoggedInUserAccount] || [];
+        }
+
+        /**
+         * Обчислює загальні доходи та витрати за місяць.
+         * @param {Array} transactions Масив транзакцій.
+         * @returns {Object} Об'єкт з totalIncome, totalExpense, netBalance.
+         */
+        function calculateMonthlySummary(transactions) {
+            let totalIncome = 0;
+            let totalExpense = 0;
+            let totalAssets = 0; // Для загальної кількості грошей
+            const now = new Date();
+            const currentMonth = now.getMonth();
+            const currentYear = now.getFullYear();
+
+            transactions.forEach(transaction => {
+                const transactionDate = new Date(transaction.date.split('.').reverse().join('-')); // Перетворюємо ДД.ММ.РРРР на РРРР-ММ-ДД
+                if (transactionDate.getMonth() === currentMonth && transactionDate.getFullYear() === currentYear) {
+                    if (transaction.type === 'Дохід') {
+                        totalIncome += transaction.amount;
+                        totalAssets += transaction.amount;
+                    } else if (transaction.type === 'Витрата') {
+                        totalExpense += transaction.amount;
+                        totalAssets -= transaction.amount;
+                    }
+                }
+            });
+            const netBalance = totalIncome - totalExpense; // Залишаємо для внутрішніх розрахунків, якщо потрібно
+            return { totalIncome, totalExpense, netBalance, totalAssets };
+        }
+
+        // Плагін для відображення тексту в центрі пончикової діаграми
+        const centerTextPlugin = {
+            id: 'centerText',
+            beforeDraw: function(chart) {
+                if (chart.config.type === 'doughnut') {
+                    const ctx = chart.ctx;
+                    const width = chart.width;
+                    const height = chart.height;
+                    const centerX = width / 2;
+                    const centerY = height / 2;
+
+                    ctx.restore();
+                    // Збільшено базовий розмір шрифту та додано динамічний розрахунок
+                    const baseFontSize = Math.min(width, height) / 8; // Адаптивний розмір шрифту
+                    ctx.font = `bold ${baseFontSize}px Inter`;
+                    ctx.textBaseline = 'middle';
+                    ctx.textAlign = 'center'; // Центрування тексту
+                    ctx.fillStyle = '#e2e8f0'; // Колір тексту
+
+                    const text = chart.options.plugins.centerText.text;
+                    const textX = centerX;
+                    const textY = centerY;
+
+                    ctx.fillText(text, textX, textY);
+                    ctx.save();
+                }
+            }
+        };
+
+        Chart.register(centerTextPlugin); // Реєструємо плагін
+
+        /**
+         * Рендерить діаграми доходів та витрат.
+         * @param {Array} transactions Масив транзакцій.
+         */
+        function renderCharts(transactions) {
+            const { totalIncome, totalExpense } = calculateMonthlySummary(transactions);
+
+            // Максимальне значення для заповнення діаграми (можна налаштувати)
+            const maxChartValue = Math.max(totalIncome, totalExpense, 1000);
+
+            // Дані для діаграми доходів
+            const incomeData = [totalIncome, Math.max(0, maxChartValue - totalIncome)];
+            const incomeColors = ['#48bb78', '#4a5568']; // Зелений для доходу, сірий для решти
+
+            // Дані для діаграми витрат
+            const expenseData = [totalExpense, Math.max(0, maxChartValue - totalExpense)];
+            const expenseColors = ['#f56565', '#4a5568']; // Червоний для витрат, сірий для решти
+
+            const commonDoughnutOptions = (value) => ({
+                responsive: true,
+                maintainAspectRatio: false,
+                cutout: '70%', // Розмір отвору в центрі
+                plugins: {
+                    legend: {
+                        display: false // Не показувати легенду
+                    },
+                    tooltip: {
+                        enabled: false // Вимкнути підказки при наведенні
+                    },
+                    centerText: {
+                        text: `${value.toFixed(2)}` // Текст у центрі діаграми
+                    }
+                }
+            });
+
+            // Діаграма доходів
+            const incomeCtx = document.getElementById('incomeChart').getContext('2d');
+            if (incomeChart) {
+                incomeChart.destroy(); // Знищуємо попередній екземпляр діаграми
+            }
+            incomeChart = new Chart(incomeCtx, {
+                type: 'doughnut',
+                data: {
+                    datasets: [{
+                        data: incomeData,
+                        backgroundColor: incomeColors,
+                        borderColor: '#2d3748', // Колір рамки між сегментами
+                        borderWidth: 2
+                    }]
+                },
+                options: commonDoughnutOptions(totalIncome)
+            });
+
+            // Діаграма витрат
+            const expenseCtx = document.getElementById('expenseChart').getContext('2d');
+            if (expenseChart) {
+                expenseChart.destroy(); // Знищуємо попередній екземпляр діаграми
+            }
+            expenseChart = new Chart(expenseCtx, {
+                type: 'doughnut',
+                data: {
+                    datasets: [{
+                        data: expenseData,
+                        backgroundColor: expenseColors,
+                        borderColor: '#2d3748', // Колір рамки між сегментами
+                        borderWidth: 2
+                    }]
+                },
+                options: commonDoughnutOptions(totalExpense)
+            });
+        }
+
+        /**
+         * Завантажує та відображає дані користувача з localStorage.
+         */
+        function loadUserData() {
+            const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+            const currentUser = registeredUsers.find(user =>
+                user.email === currentLoggedInUserAccount || user.mobile === currentLoggedInUserAccount
+            );
+
+            if (currentUser) {
+                sidebarUsername.textContent = currentUser.username; // Оновлення ім'я користувача в сайдбарі
+
+                if (currentUser.avatar) {
+                    sidebarUserAvatar.innerHTML = `<img src="${currentUser.avatar}" alt="Аватар користувача">`; // Аватар в сайдбарі
+                } else {
+                    sidebarUserAvatar.innerHTML = `<span class="sidebar-user-avatar-initials">${currentUser.username.charAt(0).toUpperCase()}</span>`; // Ініціали в сайдбарі
+                }
+            } else {
+                sidebarUsername.textContent = 'Гість';
+                sidebarUserAvatar.innerHTML = `<span class="sidebar-user-avatar-initials">?</span>`;
+                console.error('Помилка: Не знайдено дані користувача для поточного логіну. Перенаправлення на сторінку входу.');
+                window.location.href = 'login.html'; // Повернути до сторінки входу
+            }
+        }
+
+        // Ініціалізація при завантаженні сторінки
+        document.addEventListener('DOMContentLoaded', () => {
+            currentLoggedInUserAccount = localStorage.getItem('currentLoggedInUserAccount');
+
+            if (!currentLoggedInUserAccount) {
+                // Якщо користувач не увійшов, перенаправити на сторінку входу
+                window.location.href = 'login.html';
+                return;
+            }
+
+            loadUserData(); // Завантажуємо дані користувача для сайдбару
+            const { totalIncome, totalExpense, totalAssets } = calculateMonthlySummary(loadTransactions()); // Оновлено: отримуємо totalAssets
+
+            totalIncomeDisplay.textContent = `${totalIncome.toFixed(2)}`;
+            totalExpenseDisplay.textContent = `${totalExpense.toFixed(2)}`;
+            totalAssetsValueDisplay.textContent = `${totalAssets.toFixed(2)}`; // Оновлено: відображаємо totalAssets
+
+            renderCharts(loadTransactions()); // Передаємо loadTransactions() для рендерингу діаграм
+        });
+
+        // Обробник для кнопки бургер-меню
+        menuButton.addEventListener('click', () => {
+            sidebar.classList.add('active');
+            sidebarOverlay.classList.add('active');
+        });
+
+        // Обробник для кнопки закриття меню
+        closeSidebarButton.addEventListener('click', () => {
+            sidebar.classList.remove('active');
+            sidebarOverlay.classList.remove('active');
+        });
+
+        // Обробник для закриття меню при кліку на оверлей
+        sidebarOverlay.addEventListener('click', () => {
+            sidebar.classList.remove('active');
+            sidebarOverlay.classList.remove('active');
+        });
+
+        // Обробник для кнопки "Вийти" у бічному меню
+        logoutButton.addEventListener('click', () => {
+            localStorage.removeItem('currentLoggedInUserAccount'); // Видаляємо інформацію про поточного користувача
+            // showAlert('Ви успішно вийшли з акаунта!', 'success'); // Можна використати кастомний alert, якщо він є
+            setTimeout(() => {
+                window.location.href = 'login.html'; // Перенаправляємо на сторінку входу
+            }, 500); // Невелика затримка для плавного переходу
+        });
+
+
+        // ** КОД ДЛЯ КОСМІЧНОГО ЕФЕКТУ КУРСОРУ **
+        document.addEventListener('mousemove', function(e) {
+            createCursorParticle(e.clientX, e.clientY);
+        });
+
+        function createCursorParticle(x, y) {
+            const particle = document.createElement('div');
+            particle.classList.add('cursor-particle');
+            cursorParticleContainer.appendChild(particle);
+
+            // Випадковий розмір частинки (від 5px до 15px)
+            const size = Math.random() * 10 + 5;
+            particle.style.width = `${size}px`;
+            particle.style.height = `${size}px`;
+
+            // Встановлюємо позицію частинки
+            particle.style.left = `${x}px`;
+            particle.style.top = `${y}px`;
+
+            // Випадковий колір для різноманітності (опціонально)
+            const colors = ['#a0a0ff', '#c0c0ff', '#e0e0ff', '#ffffff'];
+            particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            particle.style.boxShadow = `0 0 ${size / 2}px ${size / 4}px ${particle.style.backgroundColor}`;
+
+            // Видаляємо частинку після завершення анімації
+            particle.addEventListener('animationend', () => {
+                particle.remove();
+            });
+        }
+        // ** КІНЕЦЬ КОДУ КОСМІЧНОГО ЕФЕКТУ КУРСОРУ **
+    </script>
+</body>
+</html>

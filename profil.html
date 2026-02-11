@@ -1,0 +1,1309 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galaxy Wallet | Дашборд</title>
+    <!-- Підключення Tailwind CSS через CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Підключення Font Awesome 6.5 через CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <!-- Підключення шрифту Inter з Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* Стилі для шрифту Inter */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        /* Основні стилі для фону та центрування */
+        body {
+            background-color: #1a202c; /* Темний фон */
+            color: #e2e8f0; /* Світлий текст */
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column; /* Розташування елементів по вертикалі */
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+            padding-bottom: 80px; /* Забезпечуємо відступ знизу для нижньої навігаційної панелі */
+        }
+
+        .header-bar {
+            width: 100%;
+            max-width: 400px; /* Обмеження ширини для мобільних пристроїв */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            margin-bottom: 1.5rem;
+        }
+
+        .card {
+            background: linear-gradient(135deg, #4c51bf, #667eea); /* Градієнтний фон для картки */
+            border-radius: 1rem;
+            padding: 1.5rem;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+            margin-bottom: 1.5rem;
+            color: white; /* Білий текст для картки */
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative; /* Для позиціонування VIP */
+            overflow: hidden; /* Щоб градієнт не виходив за межі */
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: -50px;
+            left: -50px;
+            width: 200px;
+            height: 200px;
+            background: rgba(255, 255, 255, 0.05); /* Легкий світлий відблиск */
+            border-radius: 50%;
+            transform: rotate(45deg);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .user-greeting {
+            display: flex;
+            align-items: center;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 0.5rem;
+            font-weight: bold;
+            font-size: 1.2rem;
+            overflow: hidden; /* Обрізати зображення по колу */
+        }
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        /* Доданий стиль для ініціалів аватара */
+        .user-avatar-initials {
+            font-size: 1.2rem;
+            color: #cbd5e0;
+            text-transform: uppercase;
+        }
+
+
+        .vip-status {
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 9999px; /* Pill shape */
+            padding: 0.25rem 0.75rem;
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .total-assets {
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .total-assets-label {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-bottom: 0.5rem;
+        }
+
+        .total-assets-value {
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
+
+        .balance-details {
+            display: flex;
+            justify-content: space-around;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        .platform-records-section {
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .record-item {
+            background-color: #2d3748; /* Фон для записів */
+            border-radius: 0.75rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .record-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .record-icon-container {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 0.75rem;
+        }
+
+        .record-icon-expense {
+            background-color: #f56565; /* Червоний для витрат */
+        }
+
+        .record-icon-income {
+            background-color: #48bb78; /* Зелений для доходу */
+        }
+
+        .record-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .record-username {
+            font-weight: bold;
+            font-size: 1rem;
+        }
+
+        .record-type {
+            font-size: 0.8rem;
+            color: #a0aec0;
+        }
+
+        .record-amount-date {
+            text-align: right;
+        }
+
+        .record-amount {
+            font-weight: bold;
+            font-size: 1rem;
+        }
+
+        .record-date {
+            font-size: 0.75rem;
+            color: #a0aec0;
+        }
+
+        /* Стилі для кнопки "+" */
+        .add-button {
+            margin-top: 1.5rem; /* Відступ від попереднього елемента */
+            margin-bottom: 1.5rem; /* Додатковий відступ знизу */
+            background-color: #6366f1; /* Основний колір кнопки */
+            color: white;
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            transition: background-color 0.2s;
+            cursor: pointer;
+            align-self: center; /* Центрує кнопку у flex-контейнері (body) */
+        }
+
+        .add-button:hover {
+            background-color: #4f46e5;
+        }
+
+        /* Стилі для модального вікна транзакцій */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7); /* Напівпрозорий темний фон */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000; /* Перекриває інші елементи */
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background-color: #2d3748; /* Темний фон для модального вікна */
+            border-radius: 1rem;
+            padding: 2rem;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+        }
+
+        .modal-overlay.active .modal-content {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            font-size: 1.5rem;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 1.5rem;
+            color: #e2e8f0;
+        }
+
+        .modal-input-group {
+            background-color: #4a5568;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .modal-input-group input,
+        .modal-input-group select {
+            background: none;
+            border: none;
+            outline: none;
+            color: #e2e8f0;
+            flex-grow: 1;
+            padding-left: 0.75rem;
+        }
+
+        .modal-input-group input::placeholder,
+        .modal-input-group select::placeholder {
+            color: #a0aec0;
+        }
+
+        .modal-input-group i {
+            color: #a0aec0;
+        }
+
+        /* Стилі для тумблера */
+        .toggle-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            color: #a0aec0;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 100px; /* Ширина тумблера */
+            height: 36px; /* Висота тумблера */
+            margin: 0 1rem;
+            background-color: #48bb78; /* Зелений для доходу за замовчуванням */
+            border-radius: 18px; /* Округла форма */
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .toggle-switch.expense {
+            background-color: #f56565; /* Червоний для витрат */
+        }
+
+        .toggle-slider {
+            position: absolute;
+            left: 4px;
+            top: 4px;
+            width: 28px;
+            height: 28px;
+            background-color: white;
+            border-radius: 50%;
+            transition: transform 0.3s ease;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #48bb78; /* Колір іконки за замовчуванням */
+            font-size: 1.2rem;
+        }
+
+        .toggle-switch.expense .toggle-slider {
+            transform: translateX(64px); /* Переміщення для витрат */
+            color: #f56565; /* Колір іконки для витрат */
+        }
+
+        .add-modal-button {
+            background-color: #48bb78; /* Зелений для ДОХІД */
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            width: 100%;
+            font-weight: bold;
+            transition: background-color 0.2s;
+            margin-bottom: 0.75rem;
+        }
+        .add-modal-button:hover {
+            opacity: 0.9;
+        }
+
+        .add-modal-button.expense {
+            background-color: #f56565; /* Червоний для ВИТРАТА */
+        }
+
+        .cancel-modal-button {
+            background-color: #4a5568; /* Сірий для скасувати */
+            color: #e2e8f0;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            width: 100%;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+        .cancel-modal-button:hover {
+            opacity: 0.9;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Стилі для повідомлення "Немає транзакцій" */
+        .no-transactions-message {
+            text-align: center;
+            color: #a0aec0;
+            padding: 2rem;
+            font-size: 1.1rem;
+            border: 1px dashed #4a5568;
+            border-radius: 0.75rem;
+            margin-top: 1.5rem;
+        }
+
+        /* Стилі для нового модального вікна сповіщень */
+        .alert-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000; /* Вищий z-index, ніж для модального вікна транзакцій */
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .alert-modal-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .alert-modal-content {
+            background-color: #2d3748;
+            border-radius: 1rem;
+            padding: 2rem;
+            width: 90%;
+            max-width: 300px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.4);
+            text-align: center;
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+        }
+
+        .alert-modal-overlay.active .alert-modal-content {
+            transform: translateY(0);
+        }
+
+        .alert-modal-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .alert-modal-icon.success {
+            color: #48bb78; /* Зелений для успіху */
+        }
+
+        .alert-modal-icon.error {
+            color: #f56565; /* Червоний для помилки */
+        }
+
+        .alert-modal-message {
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+            color: #e2e8f0;
+        }
+
+        .alert-modal-button {
+            background-color: #6366f1;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            width: 100%;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+
+        .alert-modal-button:hover {
+            background-color: #4f46e5;
+        }
+
+        /* Стилі для бургер-меню */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: -100%; /* Приховано за межами екрану (повністю ліворуч) */
+            width: 100%; /* Повна ширина */
+            height: 100%;
+            background-color: #1f2937; /* Темний фон сайдбару */
+            z-index: 1500;
+            transition: left 0.3s ease-in-out;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.5);
+            padding: 20px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            max-width: 400px; /* Обмеження ширини для більших екранів, як основний вміст */
+            margin: 0 auto; /* Центрування на більших екранах */
+        }
+
+        .sidebar.active {
+            left: 0; /* Показано на екрані */
+        }
+
+        /* Оверлей для затемнення фону при відкритому меню */
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7); /* Напівпрозорий темний фон */
+            z-index: 1400; /* Менше, ніж сайдбар, але більше, ніж основний контент */
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        .sidebar-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-close-button {
+            background: none;
+            border: none;
+            color: #e2e8f0;
+            font-size: 1.8rem;
+            cursor: pointer;
+        }
+
+        .sidebar-user-info {
+            display: flex;
+            align-items: center;
+        }
+
+        .sidebar-user-avatar {
+            width: 50px;
+            height: 50px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 10px;
+            font-weight: bold;
+            font-size: 1.5rem;
+            overflow: hidden;
+        }
+        .sidebar-user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .sidebar-user-avatar-initials {
+             font-size: 1.5rem;
+             color: #cbd5e0;
+             text-transform: uppercase;
+        }
+
+        .sidebar-user-details {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .sidebar-username {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #e2e8f0;
+        }
+
+        .sidebar-vip-status {
+            font-size: 0.8rem;
+            color: #a0aec0;
+        }
+
+        .sidebar-nav-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            flex-grow: 1; /* Дозволяє списку займати доступний простір */
+        }
+
+        .sidebar-nav-item {
+            margin-bottom: 10px;
+        }
+
+        .sidebar-nav-link {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            border-radius: 0.5rem;
+            color: #a0aec0;
+            text-decoration: none;
+            transition: background-color 0.2s, color 0.2s;
+        }
+
+        .sidebar-nav-link:hover,
+        .sidebar-nav-link.active {
+            background-color: #374151; /* Фон при наведенні/активний */
+            color: #e2e8f0;
+        }
+
+        .sidebar-nav-link i {
+            margin-right: 15px;
+            font-size: 1.2rem;
+        }
+
+        .sidebar-logout {
+            margin-top: auto; /* Притискає кнопку виходу донизу */
+        }
+
+        .sidebar-logout button {
+            background-color: #dc2626; /* Червоний для кнопки виходу */
+            color: white;
+            width: 100%;
+            padding: 12px 15px;
+            border-radius: 0.5rem;
+            border: none;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .sidebar-logout button:hover {
+            background-color: #b91c1c;
+        }
+
+        /* Медіа-запити для адаптивності, якщо потрібно для більших екранів */
+        @media (min-width: 640px) {
+            body {
+                padding: 40px;
+                padding-bottom: 80px; /* Збільшуємо відступ для десктопу також */
+            }
+        }
+
+        /* Стилі для космічного ефекту курсора */
+        .cursor-particle-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none; /* Важливо, щоб частинки не блокували взаємодію з елементами */
+            overflow: hidden;
+            z-index: 9998; /* Забезпечити, щоб були під "зірочками" реєстрації, але над іншим контентом */
+        }
+
+        .cursor-particle {
+            position: absolute;
+            background-color: #fff; /* Колір частинок */
+            border-radius: 50%;
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(0); /* Початковий стан: по центру, нульовий розмір */
+            animation: fadeOutAndShrink 1s forwards; /* Анімація зникнення та зменшення */
+            box-shadow: 0 0 5px 2px rgba(255, 255, 255, 0.7); /* Ефект світіння */
+        }
+
+        @keyframes fadeOutAndShrink {
+            0% {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0);
+            }
+        }
+
+        /* Стилі для нижньої навігаційної панелі (док-панелі) */
+        .bottom-nav-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            max-width: 400px; /* Обмеження ширини, як і для основного контенту */
+            background-color: #2d3748; /* Темний фон */
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            height: 70px; /* Висота панелі */
+            border-top-left-radius: 1rem; /* Закруглені кути зверху */
+            border-top-right-radius: 1rem;
+            box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.2);
+            z-index: 999; /* Перекриває інший контент */
+            margin: 0 auto; /* Центрування на більших екранах */
+            left: 50%;
+            transform: translateX(-50%);
+        }
+
+        .bottom-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem;
+            color: #a0aec0; /* Колір тексту та іконок за замовчуванням */
+            text-decoration: none;
+            font-size: 0.8rem;
+            font-weight: bold;
+            transition: color 0.2s;
+            flex: 1; /* Рівномірно розподіляє простір між елементами */
+        }
+
+        .bottom-nav-item:hover,
+        .bottom-nav-item.active {
+            color: #6366f1; /* Колір при наведенні або для активного елемента */
+        }
+
+        .bottom-nav-item i {
+            font-size: 1.5rem;
+            margin-bottom: 0.2rem;
+        }
+
+        /* Стиль для центральної кнопки "+" у навігації, якщо вона там буде */
+        .bottom-nav-add-button {
+            background-color: #6366f1;
+            color: white;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+            transition: background-color 0.2s;
+            position: absolute; /* Позиціонуємо абсолютно */
+            top: -30px; /* Виступає над панеллю */
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 1000; /* Над іншими елементами панелі */
+        }
+
+        .bottom-nav-add-button:hover {
+            background-color: #4f46e5;
+        }
+    </style>
+</head>
+<body>
+    <!-- Верхня панель з іконкою меню -->
+    <header class="header-bar">
+        <button id="menuButton" aria-label="Відкрити меню" class="text-2xl text-gray-300">
+            <i class="fas fa-bars"></i>
+        </button>
+        <!-- Можливо, тут буде заголовок сторінки або логотип -->
+    </header>
+
+    <!-- Бічна навігаційна панель (Бургер-меню) -->
+    <aside id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-user-info">
+                <div class="sidebar-user-avatar" id="sidebarUserAvatar"></div>
+                <div class="sidebar-user-details">
+                    <span class="sidebar-username" id="sidebarUsername">User Name</span>
+                    <span class="sidebar-vip-status">VIP 0 - Validity Period: Permanent</span>
+                </div>
+            </div>
+            <button id="closeSidebarButton" class="sidebar-close-button" aria-label="Закрити меню">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <nav>
+            <ul class="sidebar-nav-list">
+                <li class="sidebar-nav-item">
+                    <a href="#" class="sidebar-nav-link active">
+                        <i class="fas fa-home"></i> Home
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="login.html" class="sidebar-nav-link">
+                        <i class="fas fa-user"></i> Account
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="#" class="sidebar-nav-link">
+                        <i class="fas fa-wallet"></i> Wallet address
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="#" class="sidebar-nav-link">
+                        <i class="fas fa-book"></i> Direction for use
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="#" class="sidebar-nav-link">
+                        <i class="fas fa-question-circle"></i> FAQ
+                    </a>
+                </li>
+                <li class="sidebar-nav-item">
+                    <a href="#" class="sidebar-nav-link">
+                        <i class="fas fa-comment-dots"></i> Feedback
+                    </a>
+                </li>
+            </ul>
+        </nav>
+        <div class="sidebar-logout">
+            <button id="logoutButton">
+                <i class="fas fa-sign-out-alt mr-2"></i> Log out
+            </button>
+        </div>
+    </aside>
+
+    <!-- Оверлей для бургер-меню -->
+    <div id="sidebarOverlay" class="sidebar-overlay"></div>
+
+    <!-- Основна картка балансу -->
+    <div class="card">
+        <div class="card-header">
+            <div class="user-greeting">
+                <div class="user-avatar" id="userAvatarDisplay"></div>
+                <span id="userNameGreeting">Привіт, користувач</span>
+            </div>
+            <div class="vip-status">
+                <i class="fas fa-crown mr-1"></i> VIP 0
+            </div>
+        </div>
+        <div class="total-assets">
+            <div class="total-assets-label">Всього активів</div>
+            <div class="total-assets-value" id="totalAssetsValue">0.00</div>
+        </div>
+        <div class="balance-details">
+            <div>
+                <div>Доступний баланс</div>
+                <div class="font-bold" id="availableBalanceValue">0.00</div>
+            </div>
+            <div>
+                <div>Заморожений баланс</div>
+                <div class="font-bold">0</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Розділ "Історія операцій" -->
+    <section class="platform-records-section">
+        <h2 class="text-xl font-bold mb-4">Історія операцій</h2>
+
+        <!-- Контейнер для динамічних транзакцій -->
+        <div id="transactionsList">
+            <!-- Тут будуть відображатися транзакції -->
+        </div>
+
+        <!-- Повідомлення, коли немає транзакцій -->
+        <div id="noTransactionsMessage" class="no-transactions-message">
+            Немає транзакцій
+        </div>
+    </section>
+
+    <!-- Плаваюча кнопка "+" (перенесена в нижню навігацію) -->
+    <!-- <div class="add-button" role="button" aria-label="Додати нову транзакцію">
+        <i class="fas fa-plus"></i>
+    </div> -->
+
+    <!-- Модальне вікно "Додати транзакцію" -->
+    <div id="transactionModal" class="modal-overlay">
+        <div class="modal-content">
+            <h3 class="modal-header">Додати транзакцію</h3>
+
+            <!-- Тумблер доходу/витрати -->
+            <div class="toggle-container">
+                <span class="text-green-400 font-bold">Дохід</span>
+                <div class="toggle-switch" id="transactionTypeToggle">
+                    <div class="toggle-slider">
+                        <i class="fas fa-plus"></i>
+                    </div>
+                </div>
+                <span class="text-red-400 font-bold">Витрата</span>
+            </div>
+
+            <!-- Форма транзакції -->
+            <form id="transactionForm">
+                <!-- Поле суми -->
+                <div class="modal-input-group">
+                    <input type="number" id="transactionAmount" placeholder="0.00" step="0.01" required>
+                </div>
+
+                <!-- Поле категорії (для витрат) -->
+                <div class="modal-input-group hidden" id="categoryField">
+                    <select id="transactionCategory" class="w-full" aria-label="Виберіть категорію">
+                        <option value="">Виберіть категорію</option>
+                        <option value="Їжа">Їжа</option>
+                        <option value="Транспорт">Транспорт</option>
+                        <option value="Одяг">Одяг</option>
+                        <option value="Комунальні послуги">Комунальні послуги</option>
+                        <option value="Розваги">Розваги</option>
+                        <option value="Інше">Інше</option>
+                    </select>
+                </div>
+
+                <!-- Поле дати -->
+                <div class="modal-input-group">
+                    <input type="text" id="transactionDate" placeholder="ДД.ММ.РРРР" required>
+                    <i class="fas fa-calendar-alt ml-2"></i>
+                </div>
+
+                <!-- Поле коментаря -->
+                <div class="modal-input-group">
+                    <input type="text" id="transactionComment" placeholder="Коментар">
+                </div>
+
+                <!-- Кнопки -->
+                <button type="submit" class="add-modal-button" id="addTransactionButton">ДОДАТИ</button>
+                <button type="button" class="cancel-modal-button" id="cancelModalButton">СКАСУВАТИ</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Нове модальне вікно для сповіщень (замість alert) -->
+    <div id="alertModal" class="alert-modal-overlay">
+        <div class="alert-modal-content">
+            <div id="alertModalIcon" class="alert-modal-icon"></div>
+            <div id="alertModalMessage" class="alert-modal-message"></div>
+            <button id="alertModalButton" class="alert-modal-button">ОК</button>
+        </div>
+    </div>
+
+    <!-- Контейнер для частинок ефекту курсора -->
+    <div id="cursorParticleContainer" class="cursor-particle-container"></div>
+
+    <!-- Нижня навігаційна панель (док-панель) -->
+    <nav class="bottom-nav-bar">
+        <a href="#" class="bottom-nav-item active">
+            <i class="fas fa-home"></i>
+            <span>Головна</span>
+        </a>
+        <!-- Оновлено посилання для Аналітики -->
+        <a href="analytics.html" class="bottom-nav-item">
+            <i class="fas fa-chart-line"></i>
+            <span>Аналітика</span>
+        </a>
+        <!-- Центральна кнопка "Додати" -->
+        <button class="bottom-nav-add-button" role="button" aria-label="Додати нову транзакцію" id="bottomNavAddButton">
+            <i class="fas fa-plus"></i>
+        </button>
+        <!-- Оновлено посилання для Курсів валют -->
+        <a href="curse.html" class="bottom-nav-item">
+            <i class="fas fa-coins"></i>
+            <span>Курси валют</span>
+        </a>
+        <!-- Оновлено посилання для Банки -->
+        <a href="banka.html" class="bottom-nav-item">
+            <i class="fas fa-jar"></i>
+            <span>Банка</span>
+        </a>
+    </nav>
+
+
+    <script>
+        const addButton = document.querySelector('.add-button'); // This button is commented out in HTML now
+        const bottomNavAddButton = document.getElementById('bottomNavAddButton'); // New button in bottom nav
+        const transactionModal = document.getElementById('transactionModal');
+        const cancelModalButton = document.getElementById('cancelModalButton');
+        const transactionTypeToggle = document.getElementById('transactionTypeToggle');
+        const addTransactionButton = document.getElementById('addTransactionButton');
+        const categoryField = document.getElementById('categoryField');
+        const toggleSlider = transactionTypeToggle.querySelector('.toggle-slider');
+        const toggleIcon = toggleSlider.querySelector('i');
+        const transactionDateInput = document.getElementById('transactionDate');
+        const transactionsList = document.getElementById('transactionsList');
+        const noTransactionsMessage = document.getElementById('noTransactionsMessage');
+
+        const totalAssetsValue = document.getElementById('totalAssetsValue');
+        const availableBalanceValue = document.getElementById('availableBalanceValue');
+        const userNameGreeting = document.getElementById('userNameGreeting');
+        const userAvatarDisplay = document.getElementById('userAvatarDisplay');
+
+        // Елементи нового модального вікна сповіщень
+        const alertModal = document.getElementById('alertModal');
+        const alertModalIcon = document.getElementById('alertModalIcon');
+        const alertModalMessage = document.getElementById('alertModalMessage');
+        const alertModalButton = document.getElementById('alertModalButton');
+
+        // Елементи бургер-меню
+        const menuButton = document.getElementById('menuButton');
+        const sidebar = document.getElementById('sidebar');
+        const closeSidebarButton = document.getElementById('closeSidebarButton');
+        const sidebarUserAvatar = document.getElementById('sidebarUserAvatar');
+        const sidebarUsername = document.getElementById('sidebarUsername');
+        const logoutButton = document.getElementById('logoutButton');
+        const sidebarOverlay = document.getElementById('sidebarOverlay'); // Новий елемент: оверлей сайдбару
+
+        const cursorParticleContainer = document.getElementById('cursorParticleContainer'); // Отримаємо контейнер для частинок курсора
+
+        let isExpense = false; // Початковий стан: Дохід
+        let currentLoggedInUserAccount = null; // Зберігаємо логін поточного користувача
+
+        /**
+         * Функція для відображення кастомного модального вікна сповіщень.
+         * @param {string} message Повідомлення для відображення.
+         * @param {string} type Тип сповіщення ('success' або 'error').
+         */
+        function showAlert(message, type) {
+            alertModalMessage.textContent = message;
+            alertModalIcon.className = 'alert-modal-icon'; // Очищаємо попередні класи
+
+            if (type === 'success') {
+                alertModalIcon.classList.add('fas', 'fa-check-circle', 'success');
+            } else if (type === 'error') {
+                alertModalIcon.classList.add('fas', 'fa-times-circle', 'error');
+            } else {
+                alertModalIcon.classList.add('fas', 'fa-info-circle'); // За замовчуванням
+            }
+
+            alertModal.classList.add('active');
+        }
+
+        // Закрити модальне вікно сповіщень
+        alertModalButton.addEventListener('click', () => {
+            alertModal.classList.remove('active');
+        });
+
+        alertModal.addEventListener('click', (event) => {
+            if (event.target === alertModal) {
+                alertModal.classList.remove('active');
+            }
+        });
+
+
+        /**
+         * Рендерить список транзакцій на сторінці для поточного користувача.
+         */
+        function renderTransactions() {
+            transactionsList.innerHTML = ''; // Очистити поточний список
+            const allUserTransactions = JSON.parse(localStorage.getItem('allUserTransactions') || '{}');
+            const currentUserTransactions = allUserTransactions[currentLoggedInUserAccount] || [];
+
+            if (currentUserTransactions.length === 0) {
+                noTransactionsMessage.classList.remove('hidden');
+                transactionsList.classList.add('hidden');
+            } else {
+                noTransactionsMessage.classList.add('hidden');
+                transactionsList.classList.remove('hidden');
+                currentUserTransactions.forEach(transaction => {
+                    const recordItem = document.createElement('div');
+                    recordItem.classList.add('record-item');
+
+                    const iconClass = transaction.type === 'Витрата' ? 'fa-arrow-left' : 'fa-arrow-right';
+                    const iconContainerClass = transaction.type === 'Витрата' ? 'record-icon-expense' : 'record-icon-income';
+                    const amountSign = transaction.type === 'Витрата' ? '-' : '+';
+                    const amountColor = transaction.type === 'Витрата' ? 'text-red-400' : 'text-green-400';
+
+                    recordItem.innerHTML = `
+                        <div class="record-info">
+                            <div class="record-icon-container ${iconContainerClass}">
+                                <i class="fas ${iconClass}"></i>
+                            </div>
+                            <div class="record-details">
+                                <div class="record-username">${transaction.comment || 'Без коментаря'}</div>
+                                <div class="record-type">${transaction.type} ${transaction.category !== 'N/A' ? ' - ' + transaction.category : ''}</div>
+                            </div>
+                        </div>
+                        <div class="record-amount-date">
+                            <div class="record-amount ${amountColor}">${amountSign}${transaction.amount} USDT</div>
+                            <div class="record-date">${transaction.date}</div>
+                        </div>
+                    `;
+                    transactionsList.prepend(recordItem); // Додаємо нові транзакції на початок списку
+                });
+            }
+        }
+
+        /**
+         * Оновлює значення "Всього активів" та "Доступний баланс" для поточного користувача.
+         */
+        function updateBalances() {
+            const allUserTransactions = JSON.parse(localStorage.getItem('allUserTransactions') || '{}');
+            const currentUserTransactions = allUserTransactions[currentLoggedInUserAccount] || [];
+
+            let currentTotalAssets = 0;
+            let currentAvailableBalance = 0;
+
+            currentUserTransactions.forEach(transaction => {
+                if (transaction.type === 'Дохід') {
+                    currentTotalAssets += transaction.amount;
+                    currentAvailableBalance += transaction.amount;
+                } else if (transaction.type === 'Витрата') {
+                    currentTotalAssets -= transaction.amount;
+                    currentAvailableBalance -= transaction.amount;
+                }
+            });
+
+            // Зберігаємо оновлені баланси для конкретного користувача
+            let allUserBalances = JSON.parse(localStorage.getItem('allUserBalances') || '{}');
+            allUserBalances[currentLoggedInUserAccount] = {
+                totalAssets: currentTotalAssets.toFixed(2),
+                availableBalance: currentAvailableBalance.toFixed(2)
+            };
+            localStorage.setItem('allUserBalances', JSON.stringify(allUserBalances));
+
+            // Оновлюємо відображення на сторінці
+            totalAssetsValue.textContent = currentTotalAssets.toFixed(2);
+            availableBalanceValue.textContent = currentAvailableBalance.toFixed(2);
+        }
+
+        /**
+         * Завантажує та відображає дані користувача з localStorage.
+         */
+        function loadUserData() {
+            const registeredUsers = JSON.parse(localStorage.getItem('registeredUsers') || '[]');
+            // Змінено: шукаємо користувача за email АБО mobile
+            const currentUser = registeredUsers.find(user =>
+                user.email === currentLoggedInUserAccount || user.mobile === currentLoggedInUserAccount
+            );
+
+            if (currentUser) {
+                userNameGreeting.textContent = `Привіт, ${currentUser.username}`;
+                sidebarUsername.textContent = currentUser.username; // Оновлення ім'я користувача в сайдбарі
+
+                if (currentUser.avatar) {
+                    userAvatarDisplay.innerHTML = `<img src="${currentUser.avatar}" alt="Аватар користувача">`;
+                    sidebarUserAvatar.innerHTML = `<img src="${currentUser.avatar}" alt="Аватар користувача">`; // Аватар в сайдбарі
+                } else {
+                    userAvatarDisplay.innerHTML = `<span class="user-avatar-initials">${currentUser.username.charAt(0).toUpperCase()}</span>`;
+                    sidebarUserAvatar.innerHTML = `<span class="sidebar-user-avatar-initials">${currentUser.username.charAt(0).toUpperCase()}</span>`; // Ініціали в сайдбарі
+                }
+            } else {
+                // Якщо користувача не знайдено (хоча його логін є в currentLoggedInUserAccount),
+                // це може вказувати на несумісність даних або помилку.
+                // Перенаправляємо на сторінку входу.
+                userNameGreeting.textContent = 'Привіт, гість';
+                userAvatarDisplay.innerHTML = `<span class="user-avatar-initials">?</span>`;
+                sidebarUsername.textContent = 'Гість';
+                sidebarUserAvatar.innerHTML = `<span class="sidebar-user-avatar-initials">?</span>`;
+                console.error('Помилка: Не знайдено дані користувача для поточного логіну. Перенаправлення на сторінку входу.');
+                window.location.href = 'login.html'; // Повернути до сторінки входу
+            }
+        }
+
+
+        // Ініціалізація при завантаженні сторінки
+        document.addEventListener('DOMContentLoaded', () => {
+            currentLoggedInUserAccount = localStorage.getItem('currentLoggedInUserAccount');
+
+            if (!currentLoggedInUserAccount) {
+                // Якщо користувач не увійшов, перенаправити на сторінку входу
+                window.location.href = 'login.html';
+                return;
+            }
+
+            loadUserData();     // Завантажуємо дані користувача
+            renderTransactions(); // Рендеримо транзакції для поточного користувача
+            updateBalances();   // Оновлюємо баланси для поточного користувача
+        });
+
+        // Показати модальне вікно (тепер викликається з нижньої навігації)
+        bottomNavAddButton.addEventListener('click', () => { // Змінено на bottomNavAddButton
+            transactionModal.classList.add('active');
+            // Встановлення початкового стану (Дохід - зелений)
+            transactionTypeToggle.classList.remove('expense');
+            addTransactionButton.classList.remove('expense');
+            categoryField.classList.add('hidden');
+            toggleIcon.classList.remove('fa-minus');
+            toggleIcon.classList.add('fa-plus');
+            toggleSlider.style.color = '#48bb78'; // Зелений
+            isExpense = false;
+
+            // Очищення полів форми
+            document.getElementById('transactionAmount').value = '';
+            document.getElementById('transactionComment').value = '';
+            document.getElementById('transactionCategory').value = '';
+
+
+            // Встановлення поточної дати
+            const today = new Date();
+            const day = String(today.getDate()).padStart(2, '0');
+            const month = String(today.getMonth() + 1).padStart(2, '0'); // Місяці від 0 до 11
+            const year = today.getFullYear();
+            transactionDateInput.value = `${day}.${month}.${year}`;
+        });
+
+        // Приховати модальне вікно при натисканні на "СКАСУВАТИ" або фон
+        cancelModalButton.addEventListener('click', () => {
+            transactionModal.classList.remove('active');
+        });
+
+        transactionModal.addEventListener('click', (event) => {
+            if (event.target === transactionModal) {
+                transactionModal.classList.remove('active');
+            }
+        });
+
+        // Логіка перемикання Дохід/Витрата
+        transactionTypeToggle.addEventListener('click', () => {
+            isExpense = !isExpense;
+            if (isExpense) {
+                transactionTypeToggle.classList.add('expense');
+                addTransactionButton.classList.add('expense');
+                categoryField.classList.remove('hidden');
+                toggleIcon.classList.remove('fa-plus');
+                toggleIcon.classList.add('fa-minus');
+                toggleSlider.style.color = '#f56565'; // Червоний
+            } else {
+                transactionTypeToggle.classList.remove('expense');
+                addTransactionButton.classList.remove('expense');
+                categoryField.classList.add('hidden');
+                toggleIcon.classList.remove('fa-minus');
+                toggleIcon.classList.add('fa-plus');
+                toggleSlider.style.color = '#48bb78'; // Зелений
+            }
+        });
+
+        // Обробка відправки форми транзакції
+        document.getElementById('transactionForm').addEventListener('submit', (event) => {
+            event.preventDefault(); // Запобігти стандартній відправці форми
+
+            const amount = parseFloat(document.getElementById('transactionAmount').value);
+            const date = document.getElementById('transactionDate').value;
+            const comment = document.getElementById('transactionComment').value;
+            const category = isExpense ? document.getElementById('transactionCategory').value : 'N/A'; // Категорія лише для витрат
+
+            if (isNaN(amount) || amount <= 0) {
+                showAlert('Будь ласка, введіть дійсну суму!', 'error');
+                return;
+            }
+            if (!date || (isExpense && !category)) {
+                showAlert('Будь ласка, заповніть усі обов\'язкові поля!', 'error');
+                return;
+            }
+
+            const transactionType = isExpense ? 'Витрата' : 'Дохід';
+
+            const newTransaction = {
+                type: transactionType,
+                amount: amount,
+                date: date,
+                category: category,
+                comment: comment,
+                timestamp: new Date().toISOString() // Для сортування, якщо потрібно
+            };
+
+            // Отримуємо всі транзакції, додаємо транзакцію для поточного користувача і зберігаємо
+            let allUserTransactions = JSON.parse(localStorage.getItem('allUserTransactions') || '{}');
+            if (!allUserTransactions[currentLoggedInUserAccount]) {
+                allUserTransactions[currentLoggedInUserAccount] = [];
+            }
+            allUserTransactions[currentLoggedInUserAccount].push(newTransaction);
+            localStorage.setItem('allUserTransactions', JSON.stringify(allUserTransactions));
+
+            transactionModal.classList.remove('active'); // Закрити модальне вікно після відправки
+            showAlert('Транзакцію додано!', 'success'); // Використовуємо кастомний alert
+
+            renderTransactions(); // Оновити список транзакцій на дашборді
+            updateBalances();   // Оновити баланси після додавання транзакції
+        });
+
+        // Проста валідація дати для поля "ДД.ММ.РРРР"
+        transactionDateInput.addEventListener('blur', () => {
+            const dateValue = transactionDateInput.value;
+            const dateRegex = /^\d{2}\.\d{2}\.\d{4}$/;
+            if (dateValue && !dateRegex.test(dateValue)) {
+                showAlert('Неправильний формат дати. Використовуйте ДД.ММ.РРРР', 'error');
+            }
+        });
+
+        // Логіка відкриття/закриття бургер-меню
+        menuButton.addEventListener('click', () => {
+            sidebar.classList.add('active');
+            sidebarOverlay.classList.add('active'); // Активація оверлею
+        });
+
+        closeSidebarButton.addEventListener('click', () => {
+            sidebar.classList.remove('active');
+            sidebarOverlay.classList.remove('active'); // Деактивація оверлею
+        });
+
+        // Закриття сайдбару при кліку на оверлей
+        sidebarOverlay.addEventListener('click', () => {
+            sidebar.classList.remove('active');
+            sidebarOverlay.classList.remove('active');
+        });
+
+        // Обробник для кнопки "Log out"
+        logoutButton.addEventListener('click', () => {
+            localStorage.removeItem('currentLoggedInUserAccount'); // Видаляємо поточного користувача з localStorage
+            showAlert('Ви успішно вийшли з акаунта!', 'success');
+            setTimeout(() => {
+                window.location.href = 'login.html'; // Перенаправлення на сторінку входу
+            }, 1500); // Невелика затримка для відображення сповіщення
+        });
+
+        // ** КОД ДЛЯ КОСМІЧНОГО ЕФЕКТУ КУРСОРУ **
+        document.addEventListener('mousemove', function(e) {
+            createCursorParticle(e.clientX, e.clientY);
+        });
+
+        function createCursorParticle(x, y) {
+            const particle = document.createElement('div');
+            particle.classList.add('cursor-particle');
+            cursorParticleContainer.appendChild(particle);
+
+            // Випадковий розмір частинки (від 5px до 15px)
+            const size = Math.random() * 10 + 5;
+            particle.style.width = `${size}px`;
+            particle.style.height = `${size}px`;
+
+            // Встановлюємо позицію частинки
+            particle.style.left = `${x}px`;
+            particle.style.top = `${y}px`;
+
+            // Випадковий колір для різноманітності (опціонально)
+            const colors = ['#a0a0ff', '#c0c0ff', '#e0e0ff', '#ffffff'];
+            particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            particle.style.boxShadow = `0 0 ${size / 2}px ${size / 4}px ${particle.style.backgroundColor}`;
+
+
+            // Видаляємо частинку після завершення анімації
+            particle.addEventListener('animationend', () => {
+                particle.remove();
+            });
+        }
+        // ** КІНЕЦЬ КОДУ КОСМІЧНОГО ЕФЕКТУ КУРСОРУ **
+    </script>
+</body>
+</html>
