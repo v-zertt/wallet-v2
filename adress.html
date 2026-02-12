@@ -1,253 +1,154 @@
 <!DOCTYPE html>
-<html lang="uk">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Wallet Address</title>
 
+<script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
 <style>
-
-:root{
-  --bg:#0d1523;
-  --card:#2a3446;
-  --accent:#6c63ff;
-  --text:#ffffff;
-  --sub:#a3a9b8;
-}
-
-*{
-  margin:0;
-  padding:0;
-  box-sizing:border-box;
-  font-family: system-ui;
-}
-
 body{
-  background:var(--bg);
-  color:var(--text);
-  min-height:100vh;
-  padding:20px;
+    background:#0f172a;
+    color:white;
+    font-family:sans-serif;
 }
-
-/* HEADER */
-
-header{
-  display:flex;
-  align-items:center;
-  gap:15px;
-  margin-bottom:25px;
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    max-width: 400px;
+    height: 100%;
+    background-color: #1f2937;
+    z-index: 1500;
+    transition: left 0.3s ease-in-out;
+    padding: 20px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
 }
-
-header h1{
-  font-size:20px;
-  font-weight:600;
+.sidebar.active { left: 0; }
+.sidebar-overlay {
+    position: fixed;
+    top: 0; left:0;
+    width:100%; height:100%;
+    background: rgba(0,0,0,0.7);
+    z-index: 1400;
+    opacity:0;
+    visibility:hidden;
+    transition:0.3s;
 }
-
-/* CARD */
-
-.card{
-  background: linear-gradient(135deg,#6c63ff,#5b78ff);
-  padding:25px;
-  border-radius:22px;
-  margin-bottom:25px;
-  box-shadow:0 10px 25px rgba(0,0,0,0.3);
-}
-
-.balance{
-  font-size:28px;
-  font-weight:bold;
-  margin-top:10px;
-}
-
-/* ADDRESS BLOCK */
-
-.address-card{
-  background:var(--card);
-  border-radius:20px;
-  padding:20px;
-  text-align:center;
-}
-
-.address{
-  background:#1f2937;
-  padding:12px;
-  border-radius:10px;
-  margin:15px 0;
-  font-size:14px;
-  word-break:break-all;
-  color:var(--sub);
-}
-
-/* BUTTONS */
-
-.buttons{
-  display:flex;
-  gap:10px;
-  justify-content:center;
-  flex-wrap:wrap;
-}
-
-button{
-  border:none;
-  padding:10px 16px;
-  border-radius:12px;
-  background:var(--accent);
-  color:white;
-  cursor:pointer;
-  display:flex;
-  align-items:center;
-  gap:6px;
-  font-weight:500;
-  transition:0.2s;
-}
-
-button:hover{
-  transform:scale(1.05);
-}
-
-/* QR */
-
-#qrcode{
-  margin-top:20px;
-  display:flex;
-  justify-content:center;
-}
-
-/* ICON */
-
-.icon{
-  width:18px;
-  height:18px;
-  fill:white;
-}
-
-/* ADAPTIVE */
-
-@media(max-width:480px){
-  .balance{
-    font-size:22px;
-  }
-}
-
+.sidebar-overlay.active { opacity:1; visibility:visible; }
+.sidebar-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:30px; padding-bottom:15px; border-bottom:1px solid rgba(255,255,255,0.1);}
+.sidebar-close-button { background:none; border:none; color:#e2e8f0; font-size:1.8rem; cursor:pointer;}
+.sidebar-user-info { display:flex; align-items:center; }
+.sidebar-user-avatar { width:50px;height:50px;background: rgba(255,255,255,0.2);border-radius:50%;display:flex;align-items:center;justify-content:center;margin-right:10px;font-weight:bold;font-size:1.5rem;overflow:hidden;}
+.sidebar-user-details { display:flex; flex-direction:column; }
+.sidebar-username { font-size:1.2rem; font-weight:bold; color:#e2e8f0;}
+.sidebar-vip-status { font-size:0.8rem;color:#a0aec0;}
+.sidebar-nav-list { list-style:none; padding:0;margin:0; flex-grow:1;}
+.sidebar-nav-item { margin-bottom:10px; }
+.sidebar-nav-link { display:flex; align-items:center; padding:12px 15px; border-radius:.5rem; color:#a0aec0; text-decoration:none; transition:0.2s;}
+.sidebar-nav-link:hover,.sidebar-nav-link.active { background:#374151; color:#e2e8f0;}
+.sidebar-nav-link i { margin-right:15px; font-size:1.2rem;}
+.sidebar-logout { margin-top:auto;}
+.sidebar-logout button { width:100%; padding:12px 15px; border-radius:.5rem; border:none; background:#dc2626; color:white; font-weight:bold; cursor:pointer; transition:0.2s;}
+.sidebar-logout button:hover { background:#b91c1c;}
+#qrcode { display:inline-block; padding:14px; border-radius:16px; background:#0f172a; position:relative; }
+#qrcode::before { content:""; position:absolute; inset:-3px; border-radius:18px; background:linear-gradient(135deg,#6366f1,#9333ea,#22d3ee); z-index:-1;}
+.action-btn{padding:10px 18px; border-radius:10px; font-weight:600; transition:0.2s;}
+.copy-btn{background:#6366f1;}
+.copy-btn:hover{background:#4f46e5;}
+.regen-btn{background:#9333ea;}
+.regen-btn:hover{background:#7e22ce;}
+#openSidebarButton{position:fixed; top:20px; left:20px; font-size:2rem; color:white; background:none; border:none; z-index:2000; cursor:pointer;}
 </style>
 </head>
+<body class="flex flex-col items-center justify-center min-h-screen px-4">
 
-<body>
+<!-- Бургер -->
+<button id="openSidebarButton"><i class="fas fa-bars"></i></button>
 
-<header>
-  <h1>Адреса гаманця</h1>
-</header>
+<!-- Оверлей -->
+<div class="sidebar-overlay"></div>
 
-<main>
+<aside id="sidebar" class="sidebar">
+    <div class="sidebar-header">
+        <div class="sidebar-user-info">
+            <div class="sidebar-user-avatar" id="sidebarUserAvatar">U</div>
+            <div class="sidebar-user-details">
+                <span class="sidebar-username">User Name</span>
+                <span class="sidebar-vip-status">VIP 0 - Validity Period: Permanent</span>
+            </div>
+        </div>
+        <button id="closeSidebarButton" class="sidebar-close-button"><i class="fas fa-times"></i></button>
+    </div>
+    <nav>
+        <ul class="sidebar-nav-list">
+            <li class="sidebar-nav-item"><a href="#" class="sidebar-nav-link active"><i class="fas fa-home"></i> Home</a></li>
+            <li class="sidebar-nav-item"><a href="#" class="sidebar-nav-link"><i class="fas fa-user"></i> Account</a></li>
+            <li class="sidebar-nav-item"><a href="#" class="sidebar-nav-link"><i class="fas fa-wallet"></i> Wallet address</a></li>
+            <li class="sidebar-nav-item"><a href="#" class="sidebar-nav-link"><i class="fas fa-book"></i> Direction for use</a></li>
+            <li class="sidebar-nav-item"><a href="#" class="sidebar-nav-link"><i class="fas fa-question-circle"></i> FAQ</a></li>
+            <li class="sidebar-nav-item"><a href="#" class="sidebar-nav-link"><i class="fas fa-comment-dots"></i> Feedback</a></li>
+        </ul>
+    </nav>
+    <div class="sidebar-logout">
+        <button><i class="fas fa-sign-out-alt mr-2"></i> Log out</button>
+    </div>
+</aside>
 
-<section class="card">
-  <p>Ваш баланс</p>
-  <div class="balance">1000 USDT</div>
-</section>
-
-<section class="address-card">
-
-  <h2>Wallet Address</h2>
-
-  <div class="address" id="walletAddress"></div>
-
-  <div class="buttons">
-
-    <button onclick="copyAddress()">
-      <!-- copy icon -->
-      <svg class="icon" viewBox="0 0 24 24">
-        <path d="M16 1H4a2 2 0 0 0-2 2v12h2V3h12V1zm3 4H8a2 2 0 0 0-2 2v14a2 
-        2 0 0 0 2 2h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2z"/>
-      </svg>
-      Copy
-    </button>
-
-    <button onclick="generateAddress()">
-      <!-- refresh icon -->
-      <svg class="icon" viewBox="0 0 24 24">
-        <path d="M17.65 6.35A7.95 7.95 0 0 0 12 4V1L7 6l5 5V7a5 5 0 1 1-5 
-        5H5a7 7 0 1 0 12.65-5.65z"/>
-      </svg>
-      New
-    </button>
-
-  </div>
-
-  <div id="qrcode"></div>
-
-</section>
-
+<main class="text-center">
+<h1 class="text-2xl font-bold mb-6">Wallet Address</h1>
+<div class="mb-6"><div id="qrcode"></div></div>
+<p id="walletAddress" class="text-sm break-all max-w-md mx-auto mb-6"></p>
+<div class="flex justify-center gap-4 flex-wrap">
+    <button id="copyBtn" class="action-btn copy-btn">Copy Address</button>
+    <button id="regenBtn" class="action-btn regen-btn">Regenerate</button>
+</div>
 </main>
 
 <script>
-
-/* RANDOM ADDRESS */
-
-function randomAddress(){
-  const chars="abcdef0123456789";
-  let addr="0x";
-
-  for(let i=0;i<40;i++){
-    addr+=chars[Math.floor(Math.random()*chars.length)];
-  }
-
-  return addr;
-}
-
-/* GENERATE */
+// Wallet QR
+const qrContainer = document.getElementById("qrcode");
+const walletAddressText = document.getElementById("walletAddress");
+const copyBtn = document.getElementById("copyBtn");
+const regenBtn = document.getElementById("regenBtn");
 
 function generateAddress(){
-
-  const address=randomAddress();
-
-  document.getElementById("walletAddress").textContent=address;
-
-  localStorage.setItem("walletAddress",address);
-
-  document.getElementById("qrcode").innerHTML="";
-
-  new QRCode(document.getElementById("qrcode"),{
-    text:address,
-    width:150,
-    height:150
-  });
-
+    const chars="123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz";
+    let addr="bc1";
+    for(let i=0;i<30;i++){ addr+=chars[Math.floor(Math.random()*chars.length)]; }
+    return addr;
 }
 
-/* COPY */
-
-function copyAddress(){
-
-  const text=document.getElementById("walletAddress").textContent;
-
-  navigator.clipboard.writeText(text);
-
-  alert("Адресу скопійовано");
+function generateWallet(){
+    const address=generateAddress();
+    walletAddressText.textContent=address;
+    qrContainer.innerHTML="";
+    new QRCode(qrContainer,{text:address,width:200,height:200,colorDark:"#e5e7eb",colorLight:"#0f172a"});
 }
+copyBtn.addEventListener("click",()=>{
+    navigator.clipboard.writeText(walletAddressText.textContent);
+    copyBtn.textContent="Copied ✔";
+    setTimeout(()=>{copyBtn.textContent="Copy Address";},1500);
+});
+regenBtn.addEventListener("click",generateWallet);
+generateWallet();
 
-/* LOAD SAVED */
-
-window.onload=()=>{
-
-  let saved=localStorage.getItem("walletAddress");
-
-  if(saved){
-    document.getElementById("walletAddress").textContent=saved;
-
-    new QRCode(document.getElementById("qrcode"),{
-      text:saved,
-      width:150,
-      height:150
-    });
-
-  }else{
-    generateAddress();
-  }
-
-};
-
+// Sidebar
+const sidebar=document.getElementById("sidebar");
+const overlay=document.querySelector(".sidebar-overlay");
+document.getElementById("openSidebarButton").addEventListener("click",()=>{
+    sidebar.classList.add("active"); overlay.classList.add("active");
+});
+document.getElementById("closeSidebarButton").addEventListener("click",()=>{
+    sidebar.classList.remove("active"); overlay.classList.remove("active");
+});
+overlay.addEventListener("click",()=>{ sidebar.classList.remove("active"); overlay.classList.remove("active"); });
 </script>
 
 </body>
