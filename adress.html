@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wallet Address</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+<style>
+
+:root{
+  --bg:#0d1523;
+  --card:#2a3446;
+  --accent:#6c63ff;
+  --text:#ffffff;
+  --sub:#a3a9b8;
+}
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+  font-family: system-ui;
+}
+
+body{
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  padding:20px;
+}
+
+/* HEADER */
+
+header{
+  display:flex;
+  align-items:center;
+  gap:15px;
+  margin-bottom:25px;
+}
+
+header h1{
+  font-size:20px;
+  font-weight:600;
+}
+
+/* CARD */
+
+.card{
+  background: linear-gradient(135deg,#6c63ff,#5b78ff);
+  padding:25px;
+  border-radius:22px;
+  margin-bottom:25px;
+  box-shadow:0 10px 25px rgba(0,0,0,0.3);
+}
+
+.balance{
+  font-size:28px;
+  font-weight:bold;
+  margin-top:10px;
+}
+
+/* ADDRESS BLOCK */
+
+.address-card{
+  background:var(--card);
+  border-radius:20px;
+  padding:20px;
+  text-align:center;
+}
+
+.address{
+  background:#1f2937;
+  padding:12px;
+  border-radius:10px;
+  margin:15px 0;
+  font-size:14px;
+  word-break:break-all;
+  color:var(--sub);
+}
+
+/* BUTTONS */
+
+.buttons{
+  display:flex;
+  gap:10px;
+  justify-content:center;
+  flex-wrap:wrap;
+}
+
+button{
+  border:none;
+  padding:10px 16px;
+  border-radius:12px;
+  background:var(--accent);
+  color:white;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  gap:6px;
+  font-weight:500;
+  transition:0.2s;
+}
+
+button:hover{
+  transform:scale(1.05);
+}
+
+/* QR */
+
+#qrcode{
+  margin-top:20px;
+  display:flex;
+  justify-content:center;
+}
+
+/* ICON */
+
+.icon{
+  width:18px;
+  height:18px;
+  fill:white;
+}
+
+/* ADAPTIVE */
+
+@media(max-width:480px){
+  .balance{
+    font-size:22px;
+  }
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>Адреса гаманця</h1>
+</header>
+
+<main>
+
+<section class="card">
+  <p>Ваш баланс</p>
+  <div class="balance">1000 USDT</div>
+</section>
+
+<section class="address-card">
+
+  <h2>Wallet Address</h2>
+
+  <div class="address" id="walletAddress"></div>
+
+  <div class="buttons">
+
+    <button onclick="copyAddress()">
+      <!-- copy icon -->
+      <svg class="icon" viewBox="0 0 24 24">
+        <path d="M16 1H4a2 2 0 0 0-2 2v12h2V3h12V1zm3 4H8a2 2 0 0 0-2 2v14a2 
+        2 0 0 0 2 2h11a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2z"/>
+      </svg>
+      Copy
+    </button>
+
+    <button onclick="generateAddress()">
+      <!-- refresh icon -->
+      <svg class="icon" viewBox="0 0 24 24">
+        <path d="M17.65 6.35A7.95 7.95 0 0 0 12 4V1L7 6l5 5V7a5 5 0 1 1-5 
+        5H5a7 7 0 1 0 12.65-5.65z"/>
+      </svg>
+      New
+    </button>
+
+  </div>
+
+  <div id="qrcode"></div>
+
+</section>
+
+</main>
+
+<script>
+
+/* RANDOM ADDRESS */
+
+function randomAddress(){
+  const chars="abcdef0123456789";
+  let addr="0x";
+
+  for(let i=0;i<40;i++){
+    addr+=chars[Math.floor(Math.random()*chars.length)];
+  }
+
+  return addr;
+}
+
+/* GENERATE */
+
+function generateAddress(){
+
+  const address=randomAddress();
+
+  document.getElementById("walletAddress").textContent=address;
+
+  localStorage.setItem("walletAddress",address);
+
+  document.getElementById("qrcode").innerHTML="";
+
+  new QRCode(document.getElementById("qrcode"),{
+    text:address,
+    width:150,
+    height:150
+  });
+
+}
+
+/* COPY */
+
+function copyAddress(){
+
+  const text=document.getElementById("walletAddress").textContent;
+
+  navigator.clipboard.writeText(text);
+
+  alert("Адресу скопійовано");
+}
+
+/* LOAD SAVED */
+
+window.onload=()=>{
+
+  let saved=localStorage.getItem("walletAddress");
+
+  if(saved){
+    document.getElementById("walletAddress").textContent=saved;
+
+    new QRCode(document.getElementById("qrcode"),{
+      text:saved,
+      width:150,
+      height:150
+    });
+
+  }else{
+    generateAddress();
+  }
+
+};
+
+</script>
+
+</body>
+</html>
